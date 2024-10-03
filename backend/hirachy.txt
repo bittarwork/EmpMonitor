@@ -1,0 +1,29 @@
+employee-attendance-system/
+│
+├── config/
+│   └── db.js            # إعدادات الاتصال بقاعدة البيانات
+│
+├── controllers/
+│   └── employeeController.js  # المنطق الخاص بموارد الموظفين
+│   └── attendanceController.js  # المنطق الخاص بالبصمات
+│   └── withdrawalController.js  # المنطق الخاص بالمسحوبات
+│
+├── models/
+│   └── Employee.js      # نموذج الموظف
+│   └── Attendance.js    # نموذج البصمة
+│   └── Withdrawal.js    # نموذج المسحوبات
+│   └── Material.js      # نموذج المواد
+│   └── AttendanceDevice.js  # نموذج جهاز مراقبة الدوام
+│
+├── routes/
+│   └── employeeRoutes.js   # مسارات الموظفين
+│   └── attendanceRoutes.js # مسارات البصمات
+│   └── withdrawalRoutes.js # مسارات المسحوبات
+│
+├── utils/
+│   └── calculateSalary.js  # دالة لحساب الراتب الأسبوعي
+│
+├── .env               # ملف المتغيرات البيئية
+├── server.js          # ملف بدء الخادم
+├── package.json
+└── README.md
