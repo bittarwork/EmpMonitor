@@ -1,4 +1,3 @@
-// controllers/materialController.js
 const Material = require('../models/Material');
 
 // الحصول على جميع المواد
