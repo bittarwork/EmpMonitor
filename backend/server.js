@@ -1,31 +1,29 @@
-// server.js
+// app.js
 const express = require('express');
-const dotenv = require('dotenv');
-const connectDB = require('./config/db');
-
-// تحميل المتغيرات البيئية
-dotenv.config();
-
-// الاتصال بقاعدة البيانات
-connectDB();
-
-const app = express();
-
-// ميدل وير للتعامل مع JSON
-app.use(express.json());
-
-// استيراد المسارات
+const mongoose = require('mongoose');
 const employeeRoutes = require('./routes/employeeRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
+const mockAttendanceRoutes = require('./routes/mockAttendanceRoutes');
+const materialRoutes = require('./routes/materialRoutes');
 const withdrawalRoutes = require('./routes/withdrawalRoutes');
+const app = express();
 
-// إعداد المسارات
+app.use(express.json()); // Middleware لتفسير JSON
 app.use('/api/employees', employeeRoutes);
 app.use('/api/attendances', attendanceRoutes);
+app.use('/api/mockAttendances', mockAttendanceRoutes);
+app.use('/api/materials', materialRoutes);
 app.use('/api/withdrawals', withdrawalRoutes);
 
-// تشغيل الخادم
-const PORT = process.env.PORT || 5000;
+// إعداد اتصال قاعدة البيانات
+mongoose.connect('mongodb://localhost:27017/your-database-name', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => console.error('Could not connect to MongoDB', err));
+
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });

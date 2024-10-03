@@ -1,41 +1,41 @@
-// controllers/materialController.js
-const Material = require('../models/Material');
+// controllers/withdrawalController.js
+const Withdrawal = require('../models/Withdrawal');
 
-// الحصول على جميع المواد
-exports.getAllMaterials = async (req, res) => {
+// الحصول على جميع المسحوبات
+exports.getAllWithdrawals = async (req, res) => {
     try {
-        const materials = await Material.find();
-        res.json(materials);
+        const withdrawals = await Withdrawal.find().populate('employee').populate('material');
+        res.json(withdrawals);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-// إضافة مادة جديدة
-exports.createMaterial = async (req, res) => {
-    const material = new Material(req.body);
+// إضافة سحب جديد
+exports.createWithdrawal = async (req, res) => {
+    const withdrawal = new Withdrawal(req.body);
     try {
-        const savedMaterial = await material.save();
-        res.status(201).json(savedMaterial);
+        const savedWithdrawal = await withdrawal.save();
+        res.status(201).json(savedWithdrawal);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
 
-// تحديث مادة
-exports.updateMaterial = async (req, res) => {
+// تحديث سحب
+exports.updateWithdrawal = async (req, res) => {
     try {
-        const updatedMaterial = await Material.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        res.json(updatedMaterial);
+        const updatedWithdrawal = await Withdrawal.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(updatedWithdrawal);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
 
-// حذف مادة
-exports.deleteMaterial = async (req, res) => {
+// حذف سحب
+exports.deleteWithdrawal = async (req, res) => {
     try {
-        await Material.findByIdAndDelete(req.params.id);
+        await Withdrawal.findByIdAndDelete(req.params.id);
         res.status(204).json();
     } catch (error) {
         res.status(500).json({ message: error.message });
