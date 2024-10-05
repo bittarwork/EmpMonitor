@@ -1,19 +1,20 @@
-import React, { useContext } from 'react';
-import { UserContext } from '../Context/UserContext';
+// src/dashboard/Dashboard.js
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Sidebar from './Sidebar';
+import EmployeesPage from './EmployeesPage'; // استيراد الصفحة الخاصة بالموظفين
 
-const Dashboard = () => {
-    const { user } = useContext(UserContext);
-
+const DashboardPage = () => {
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold">Welcome to your Dashboard</h1>
-            <p>Hello, {user?.name}! Here are your details:</p>
-            <ul>
-                <li>ID: {user?.id}</li>
-                <li>Email: {user?.email}</li>
-            </ul>
+        <div className="flex h-screen">
+            <Sidebar />
+            <div className="flex-1 p-4">
+                <Routes>
+                    <Route path="employees" element={<EmployeesPage />} />
+                </Routes>
+            </div>
         </div>
     );
 };
 
-export default Dashboard;
+export default DashboardPage;

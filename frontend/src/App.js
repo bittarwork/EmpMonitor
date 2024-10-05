@@ -4,12 +4,14 @@ import Layout from './Layout/Layout';
 import HomePage from './Pages/HomePage';
 import DashboardPage from './dashboard/Dashboard'; // صفحة الـ Dashboard
 import { UserProvider, UserContext } from './Context/UserContext';
-
+import EmployeeProvider from './Context/EmployeeContext'; // تعديل هنا
 
 function App() {
     return (
         <UserProvider>
-            <MainApp />
+            <EmployeeProvider>
+                <MainApp />
+            </EmployeeProvider>
         </UserProvider>
     );
 }
@@ -23,10 +25,12 @@ function MainApp() {
                 <Routes>
                     {/* إذا كان المستخدم مسجلاً، يتم تحويله إلى الـ Dashboard */}
                     <Route path="/" element={user ? <Navigate to="/dashboard" /> : <HomePage />} />
-                    <Route path="/dashboard" element={user ? <DashboardPage /> : <Navigate to="/" />} />
+                    {/* تعديل هنا لإضافة النجمة في نهاية المسار */}
+                    <Route path="/dashboard/*" element={user ? <DashboardPage /> : <Navigate to="/" />} />
                 </Routes>
             </Layout>
         </Router>
     );
 }
+
 export default App;
