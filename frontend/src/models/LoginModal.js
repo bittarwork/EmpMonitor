@@ -20,13 +20,13 @@ const LoginModal = ({ onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+        <div className="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-gray-100 p-6 rounded-md shadow-md w-80">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-semibold text-gray-800">تسجيل الدخول</h2>
+                    <h2 className="text-xl font-semibold text-gray-800">تسجيل الدخول</h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-600 hover:text-gray-900 p-2 rounded-full transition-colors duration-300"
+                        className="text-gray-600 hover:text-gray-800 p-2 rounded-full transition-colors duration-300"
                     >
                         &times; {/* رمز إغلاق النافذة */}
                     </button>
@@ -38,7 +38,7 @@ const LoginModal = ({ onClose }) => {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 text-gray-800" // إضافة لون النص هنا
                             required
                         />
                     </div>
@@ -48,7 +48,7 @@ const LoginModal = ({ onClose }) => {
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 text-gray-800" // إضافة لون النص هنا
                             required
                         />
                     </div>
@@ -67,7 +67,7 @@ const LoginModal = ({ onClose }) => {
                         </button>
                         <button
                             type="submit"
-                            className="bg-blue-500 hover:bg-blue-600 px-4 py-2 text-white rounded"
+                            className="bg-gray-600 hover:bg-gray-700 px-4 py-2 text-white rounded"
                             disabled={loading}
                         >
                             {loading ? 'جارٍ تسجيل الدخول...' : 'تسجيل الدخول'}

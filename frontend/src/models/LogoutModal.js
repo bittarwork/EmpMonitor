@@ -6,16 +6,16 @@ const LogoutModal = ({ onConfirm, onCancel }) => {
     const { loading } = useContext(UserContext);
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-1/3 relative">
+        <div className="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center">
+            <div className="bg-gray-100 p-6 rounded-md shadow-md w-80 relative">
                 <button
                     onClick={onCancel}
-                    className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
+                    className="absolute top-3 right-3 text-gray-600 hover:text-gray-800"
                     title="Close"
                 >
                     &times; {/* رمز إغلاق */}
                 </button>
-                <h2 className="text-2xl font-semibold text-gray-800 mb-4">تأكيد تسجيل الخروج</h2>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">تأكيد تسجيل الخروج</h2>
                 <p className="text-gray-700">هل أنت متأكد أنك تريد تسجيل الخروج؟</p>
                 <div className="flex justify-end mt-4">
                     <button
@@ -26,7 +26,7 @@ const LogoutModal = ({ onConfirm, onCancel }) => {
                     </button>
                     <button
                         onClick={onConfirm}
-                        className="bg-red-500 hover:bg-red-600 px-4 py-2 text-white rounded"
+                        className="bg-gray-600 hover:bg-gray-700 px-4 py-2 text-white rounded"
                         disabled={loading}
                     >
                         {loading ? 'جارٍ تسجيل الخروج...' : 'تسجيل الخروج'}

@@ -93,7 +93,10 @@ exports.updateEmployee = async (req, res) => {
 // دالة لحساب الراتب الأسبوعي
 exports.calculateWeeklySalary = async (req, res) => {
     try {
-        const employee = await Employee.findById(req.params.id).populate('mockAttendances').populate('withdrawals');
+        const employee = await Employee.findById(req.params.id)
+            .populate('mockAttendances') // جلب جميع سجلات الحضور المرتبطة
+            .populate('withdrawals');     // جلب جميع السحوبات المرتبطة
+
         if (!employee) return res.status(404).json({ message: 'Employee not found' });
 
         const hoursWorked = employee.mockAttendances.reduce((total, attendance) => total + attendance.hoursWorked, 0);
@@ -107,10 +110,12 @@ exports.calculateWeeklySalary = async (req, res) => {
     }
 };
 
-// دالة لجلب جميع الموظفين
+// دالة لجلب جميع الموظفين مع كل المعلومات المرتبطة
 exports.getEmployees = async (req, res) => {
     try {
-        const employees = await Employee.find();
+        const employees = await Employee.find()
+            .populate('mockAttendances') // جلب جميع سجلات الحضور المرتبطة
+            .populate('withdrawals');     // جلب جميع السحوبات المرتبطة
         res.status(200).json(employees);
     } catch (error) {
         console.error('Error fetching employees:', error);
@@ -118,10 +123,13 @@ exports.getEmployees = async (req, res) => {
     }
 };
 
-// دالة لجلب موظف بواسطة ID
+// دالة لجلب موظف بواسطة ID مع كل المعلومات المرتبطة
 exports.getEmployeeById = async (req, res) => {
     try {
-        const employee = await Employee.findById(req.params.id);
+        const employee = await Employee.findById(req.params.id)
+            .populate('mockAttendances') // جلب جميع سجلات الحضور المرتبطة
+            .populate('withdrawals');     // جلب جميع السحوبات المرتبطة
+
         if (!employee) return res.status(404).json({ message: 'Employee not found' });
         res.status(200).json(employee);
     } catch (error) {
@@ -157,7 +165,9 @@ exports.getEmployeesByHirePeriod = async (req, res) => {
                 $gte: new Date(startDate),
                 $lte: new Date(endDate)
             }
-        });
+        })
+            .populate('mockAttendances') // جلب جميع سجلات الحضور المرتبطة
+            .populate('withdrawals');     // جلب جميع السحوبات المرتبطة
 
         res.status(200).json(employees);
     } catch (error) {

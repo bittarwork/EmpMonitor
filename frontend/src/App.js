@@ -1,10 +1,11 @@
+// src/App.js
 import React, { useContext } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Layout from './Layout/Layout';
 import HomePage from './Pages/HomePage';
 import DashboardPage from './dashboard/Dashboard'; // صفحة الـ Dashboard
 import { UserProvider, UserContext } from './Context/UserContext';
-import EmployeeProvider from './Context/EmployeeContext'; // تعديل هنا
+import { EmployeeProvider } from './Context/EmployeeContext'; // تعديل هنا
 
 function App() {
     return (
@@ -17,7 +18,7 @@ function App() {
 }
 
 function MainApp() {
-    const { user } = useContext(UserContext); // هنا يتم استدعاء الـ useContext داخل MainApp بعد توفير UserProvider
+    const { user } = useContext(UserContext);
 
     return (
         <Router>
@@ -27,6 +28,7 @@ function MainApp() {
                     <Route path="/" element={user ? <Navigate to="/dashboard" /> : <HomePage />} />
                     {/* تعديل هنا لإضافة النجمة في نهاية المسار */}
                     <Route path="/dashboard/*" element={user ? <DashboardPage /> : <Navigate to="/" />} />
+                    {/* إضافة صفحة قائمة الموظفين */}
                 </Routes>
             </Layout>
         </Router>
