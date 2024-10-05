@@ -1,11 +1,10 @@
-// models/Employee.js
 const mongoose = require('mongoose');
 
 const employeeSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     fingerprint: { type: String, required: true },
-    image: { type: String },
+    image: { type: String },  // حقل لتخزين مسار الصورة
     contractStartDate: { type: Date, required: true },
     contractEndDate: { type: Date, required: true },
     hourlyRate: { type: Number, required: true },
@@ -15,13 +14,13 @@ const employeeSchema = new mongoose.Schema({
         enum: ['active', 'expired'],
         default: 'active'
     },
-    // حقل للربط مع سجلات الحضور الوهمية
-    mockAttendances: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MockAttendance' }]
+    mockAttendances: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MockAttendance' }],
+    withdrawals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Withdrawal' }]  // حقل جديد للسحب
 });
 
 // دالة لحساب الراتب الأسبوعي
-employeeSchema.methods.calculateSalary = function (hoursWorked) {
-    return hoursWorked * this.hourlyRate;
+employeeSchema.methods.calculateWeeklySalary = function (hoursWorked, totalWithdrawals) {
+    return (hoursWorked * this.hourlyRate) - totalWithdrawals;
 };
 
 const Employee = mongoose.model('Employee', employeeSchema);

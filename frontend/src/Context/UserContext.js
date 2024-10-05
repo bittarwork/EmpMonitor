@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { mockLogin, mockLogout } from '../backend/mockBackend';
+import axios from 'axios';
 
 export const UserContext = createContext();
 
@@ -11,17 +11,15 @@ export const UserProvider = ({ children }) => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        // التحقق من وجود الجلسة عند تحميل التطبيق
         const storedUser = localStorage.getItem('user');
         const sessionExpiry = localStorage.getItem('expiry');
 
         if (storedUser && sessionExpiry) {
             const now = new Date().getTime();
-            // التحقق مما إذا كانت الجلسة لا تزال صالحة
             if (now < sessionExpiry) {
                 setUser(JSON.parse(storedUser));
             } else {
-                localStorage.clear(); // مسح الجلسة إذا انتهت
+                localStorage.clear();
             }
         }
     }, []);
@@ -30,7 +28,8 @@ export const UserProvider = ({ children }) => {
         setLoading(true);
         setError(null);
         try {
-            const userData = await mockLogin(email, password);
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/users/login`, { email, password });
+            const userData = response.data.user;
             const now = new Date().getTime();
             const expiryTime = now + SESSION_DURATION_MS;
 
@@ -38,7 +37,7 @@ export const UserProvider = ({ children }) => {
             localStorage.setItem('user', JSON.stringify(userData));
             localStorage.setItem('expiry', expiryTime);
         } catch (err) {
-            setError(err);
+            setError(err.response?.data?.message || 'Error logging in');
         } finally {
             setLoading(false);
         }
@@ -47,9 +46,11 @@ export const UserProvider = ({ children }) => {
     const logout = async () => {
         setLoading(true);
         try {
-            await mockLogout();
+            // لا يوجد نقطة نهاية للخروج من أجل الخادم الحالي، ولكن يمكن التعامل مع الخروج محليًا
             setUser(null);
             localStorage.clear();
+        } catch (err) {
+            setError(err.response?.data?.message || 'Error logging out');
         } finally {
             setLoading(false);
         }

@@ -1,21 +1,22 @@
-// src/models/LoginModal.js
+// src/models/RegisterModal.js
 import React, { useState, useContext } from 'react';
 import { UserContext } from '../Context/UserContext';
 
-const LoginModal = ({ onClose }) => {
-    const { login, loading, error } = useContext(UserContext);
+const RegisterModal = ({ onClose }) => {
+    const { register, loading, error } = useContext(UserContext); // تأكد من وجود دالة التسجيل في UserContext
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [submitError, setSubmitError] = useState(null); // لتعقب الأخطاء
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setSubmitError(null); // إعادة تعيين الخطأ قبل محاولة تسجيل الدخول
+        setSubmitError(null); // إعادة تعيين الخطأ قبل محاولة التسجيل
         try {
-            await login(email, password); // تسجيل الدخول باستخدام الـ Context
-            onClose(); // إغلاق النافذة عند نجاح تسجيل الدخول
+            await register(name, email, password); // تسجيل مستخدم جديد باستخدام الـ Context
+            onClose(); // إغلاق النافذة عند نجاح التسجيل
         } catch (err) {
-            setSubmitError(err.message || 'فشل تسجيل الدخول.'); // عرض الخطأ في حال حدوث مشكلة
+            setSubmitError(err.message || 'فشل التسجيل.'); // عرض الخطأ في حال حدوث مشكلة
         }
     };
 
@@ -23,7 +24,7 @@ const LoginModal = ({ onClose }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-semibold text-gray-800">تسجيل الدخول</h2>
+                    <h2 className="text-2xl font-semibold text-gray-800">تسجيل مستخدم جديد</h2>
                     <button
                         onClick={onClose}
                         className="text-gray-600 hover:text-gray-900 p-2 rounded-full transition-colors duration-300"
@@ -32,6 +33,16 @@ const LoginModal = ({ onClose }) => {
                     </button>
                 </div>
                 <form onSubmit={handleSubmit}>
+                    <div className="mb-4">
+                        <label className="block text-gray-700">الاسم:</label>
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                    </div>
                     <div className="mb-4">
                         <label className="block text-gray-700">البريد الإلكتروني:</label>
                         <input
@@ -55,7 +66,7 @@ const LoginModal = ({ onClose }) => {
 
                     {/* عرض الخطأ إذا وُجد */}
                     {submitError && <p className="text-red-500 mb-2">{submitError}</p>}
-                    {error && <p className="text-red-500 mb-2">{error}</p>} {/* عرض أخطاء تسجيل الدخول */}
+                    {error && <p className="text-red-500 mb-2">{error}</p>} {/* عرض أخطاء التسجيل */}
 
                     <div className="flex justify-end">
                         <button
@@ -70,7 +81,7 @@ const LoginModal = ({ onClose }) => {
                             className="bg-blue-500 hover:bg-blue-600 px-4 py-2 text-white rounded"
                             disabled={loading}
                         >
-                            {loading ? 'جارٍ تسجيل الدخول...' : 'تسجيل الدخول'}
+                            {loading ? 'جارٍ التسجيل...' : 'تسجيل'}
                         </button>
                     </div>
                 </form>
@@ -79,4 +90,4 @@ const LoginModal = ({ onClose }) => {
     );
 };
 
-export default LoginModal;
+export default RegisterModal;
