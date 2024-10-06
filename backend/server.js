@@ -34,7 +34,7 @@ app.use('/api/withdrawals', withdrawalRoutes);
 app.use('/api/users', userRoutes);
 
 // إعداد اتصال قاعدة البيانات
-mongoose.connect('mongodb://localhost:27017/your-database-name')
+mongoose.connect('mongodb://localhost:27017/r')
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('Could not connect to MongoDB', err));
 

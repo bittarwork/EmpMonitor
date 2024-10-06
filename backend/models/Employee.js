@@ -4,7 +4,7 @@ const employeeSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     fingerprint: { type: String, required: true },
-    image: { type: String },  // حقل لتخزين مسار الصورة
+    image: { type: String },
     contractStartDate: { type: Date, required: true },
     contractEndDate: { type: Date, required: true },
     hourlyRate: { type: Number, required: true },
@@ -15,10 +15,9 @@ const employeeSchema = new mongoose.Schema({
         default: 'active'
     },
     mockAttendances: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MockAttendance' }],
-    withdrawals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Withdrawal' }]  // حقل جديد للسحب
+    withdrawals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Withdrawal' }]
 });
 
-// دالة لحساب الراتب الأسبوعي
 employeeSchema.methods.calculateWeeklySalary = function (hoursWorked, totalWithdrawals) {
     return (hoursWorked * this.hourlyRate) - totalWithdrawals;
 };

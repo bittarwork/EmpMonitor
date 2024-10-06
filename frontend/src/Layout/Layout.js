@@ -8,11 +8,11 @@ const Layout = ({ children }) => {
     const { user } = useContext(UserContext);
 
     return (
-        <div className="flex flex-col min-h-screen">
+        <div className="flex flex-col h-screen">
             {/* Header */}
             <Header />
 
-            <div className="flex flex-1">
+            <div className="flex flex-grow">
                 {/* Sidebar */}
                 {user ? (
                     <Sidebar />
@@ -23,7 +23,7 @@ const Layout = ({ children }) => {
                 )}
 
                 {/* Main Content */}
-                <main className=" p-6 flex justify-center mx-auto">
+                <main className="p-6 flex-grow">
                     {children}
                 </main>
             </div>

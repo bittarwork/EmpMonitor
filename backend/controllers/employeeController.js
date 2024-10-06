@@ -18,75 +18,95 @@ const upload = multer({ storage: storage });
 
 exports.uploadImage = upload.single('image');
 
-// دالة لإنشاء موظف جديد مع رفع صورة
+// دالة لإنشاء موظف جديد
 exports.createEmployee = async (req, res) => {
     try {
         const { firstName, lastName, fingerprint, contractStartDate, contractEndDate, hourlyRate } = req.body;
 
-        // تحقق من وجود البيانات المطلوبة
-        if (!firstName || !lastName || !fingerprint || !contractStartDate || !contractEndDate || !hourlyRate) {
-            return res.status(400).json({ message: 'All fields are required.' });
-        }
+        // التحقق من تكرار الاسماء والبصمة
+        const existingEmployee = await Employee.findOne({
+            $or: [
+                { firstName, lastName }, // تحقق من الاسم الأول واسم العائلة
+                { fingerprint } // تحقق من بصمة الأصبع
+            ]
+        });
 
-        // تحقق من وجود موظف بنفس المعلومات
-        const existingEmployee = await Employee.findOne({ fingerprint });
         if (existingEmployee) {
-            return res.status(400).json({ message: 'Employee with this fingerprint already exists.' });
+            return res.status(400).json({
+                message: 'الاسم أو البصمة موجودة بالفعل. يرجى استخدام معلومات مختلفة.'
+            });
         }
 
-        const startDate = new Date(contractStartDate);
-        const endDate = new Date(contractEndDate);
+        // تأكد من وجود ملف الصورة في req.file إذا كنت تستخدم multer
+        const image = req.file ? req.file.path : undefined; // حفظ مسار الصورة
 
-        // تحقق من صحة تواريخ العقد
-        const duration = (endDate - startDate) / (1000 * 60 * 60 * 24); // تحويل الفرق إلى أيام
-        if (duration < 1 || duration > 15) {
-            return res.status(400).json({ message: 'Contract duration must be between 1 and 15 days.' });
-        }
+        const newEmployee = new Employee({
+            firstName,
+            lastName,
+            fingerprint,
+            contractStartDate,
+            contractEndDate,
+            hourlyRate,
+            image // إضافة مسار الصورة
+        });
 
-        const employeeData = req.body;
-        if (req.file) {
-            employeeData.image = req.file.path; // حفظ مسار الصورة
-        }
+        const savedEmployee = await newEmployee.save();
 
-        const employee = new Employee(employeeData);
-        await employee.save();
-        res.status(201).json({ message: 'Employee created successfully', employee });
+        // بناء المسار الكامل للصورة
+        const employeeWithImage = {
+            id: savedEmployee._id,
+            firstName: savedEmployee.firstName,
+            lastName: savedEmployee.lastName,
+            fingerprint: savedEmployee.fingerprint,
+            contractStartDate: savedEmployee.contractStartDate,
+            contractEndDate: savedEmployee.contractEndDate,
+            hourlyRate: savedEmployee.hourlyRate,
+            image: `${req.protocol}://${req.get('host')}/${savedEmployee.image}`, // بناء مسار الصورة
+        };
+
+        res.status(201).json(employeeWithImage);
     } catch (error) {
         console.error('Error creating employee:', error);
         res.status(500).json({ message: 'Error creating employee', error });
     }
 };
 
-// دالة لتحديث بيانات الموظف مع رفع صورة
+// دالة لتعديل بيانات الموظف
 exports.updateEmployee = async (req, res) => {
     try {
-        const { firstName, lastName, fingerprint, contractStartDate, contractEndDate, hourlyRate } = req.body;
+        const employeeId = req.params.id;
+        const { firstName, lastName, fingerprint, image, contractStartDate, contractEndDate, hourlyRate } = req.body;
 
-        // تحقق من وجود البيانات المطلوبة
-        if (!firstName || !lastName || !fingerprint || !contractStartDate || !contractEndDate || !hourlyRate) {
-            return res.status(400).json({ message: 'All fields are required.' });
+        // العثور على الموظف من قاعدة البيانات
+        const employee = await Employee.findById(employeeId);
+        if (!employee) {
+            return res.status(404).json({ message: 'الموظف غير موجود' });
         }
 
-        const startDate = new Date(contractStartDate);
-        const endDate = new Date(contractEndDate);
+        // التحقق من أن تاريخ بداية العقد هو إما اليوم أو لا يتجاوز 15 يوم من اليوم
+        const currentDate = new Date();
+        const maxStartDate = new Date();
+        maxStartDate.setDate(currentDate.getDate() + 15); // أقصى تاريخ لبداية العقد (بعد 15 يوم)
 
-        // تحقق من صحة تواريخ العقد
-        const duration = (endDate - startDate) / (1000 * 60 * 60 * 24);
-        if (duration < 1 || duration > 15) {
-            return res.status(400).json({ message: 'Contract duration must be between 1 and 15 days.' });
+        if (new Date(contractStartDate) < currentDate || new Date(contractStartDate) > maxStartDate) {
+            return res.status(400).json({ message: 'تاريخ بداية العقد يجب أن يكون اليوم أو خلال 15 يومًا من اليوم الحالي.' });
         }
 
-        const employeeData = req.body;
-        if (req.file) {
-            employeeData.image = req.file.path; // حفظ مسار الصورة
-        }
+        // تحديث بيانات الموظف
+        employee.firstName = firstName || employee.firstName;
+        employee.lastName = lastName || employee.lastName;
+        employee.fingerprint = fingerprint || employee.fingerprint;
+        employee.image = image || employee.image;
+        employee.contractStartDate = contractStartDate || employee.contractStartDate;
+        employee.contractEndDate = contractEndDate || employee.contractEndDate;
+        employee.hourlyRate = hourlyRate || employee.hourlyRate;
 
-        const employee = await Employee.findByIdAndUpdate(req.params.id, employeeData, { new: true });
-        if (!employee) return res.status(404).json({ message: 'Employee not found' });
-        res.status(200).json({ message: 'Employee updated successfully', employee });
+        // حفظ التعديلات في قاعدة البيانات
+        await employee.save();
+
+        res.status(200).json({ message: 'تم تحديث بيانات الموظف بنجاح', employee });
     } catch (error) {
-        console.error('Error updating employee:', error);
-        res.status(500).json({ message: 'Error updating employee', error });
+        res.status(500).json({ message: 'حدث خطأ أثناء تعديل بيانات الموظف', error: error.message });
     }
 };
 
@@ -110,31 +130,61 @@ exports.calculateWeeklySalary = async (req, res) => {
     }
 };
 
-// دالة لجلب جميع الموظفين مع كل المعلومات المرتبطة
 exports.getEmployees = async (req, res) => {
     try {
         const employees = await Employee.find()
             .populate('mockAttendances') // جلب جميع سجلات الحضور المرتبطة
             .populate('withdrawals');     // جلب جميع السحوبات المرتبطة
-        res.status(200).json(employees);
+
+        // إضافة مسار الصورة إلى كل موظف
+        const employeesWithImages = employees.map(employee => ({
+            id: employee._id,
+            firstName: employee.firstName,
+            lastName: employee.lastName,
+            fingerprint: employee.fingerprint,
+            contractStartDate: employee.contractStartDate,
+            contractEndDate: employee.contractEndDate,
+            hourlyRate: employee.hourlyRate,
+            image: `${req.protocol}://${req.get('host')}/${employee.image}`, // بناء مسار الصورة
+            mockAttendances: employee.mockAttendances,
+            withdrawals: employee.withdrawals,
+        }));
+
+        res.status(200).json(employeesWithImages);
     } catch (error) {
         console.error('Error fetching employees:', error);
         res.status(500).json({ message: 'Error fetching employees', error });
     }
 };
-
-// دالة لجلب موظف بواسطة ID مع كل المعلومات المرتبطة
+// دالة لاسترجاع معلومات موظف بناءً على معرفه
 exports.getEmployeeById = async (req, res) => {
     try {
-        const employee = await Employee.findById(req.params.id)
-            .populate('mockAttendances') // جلب جميع سجلات الحضور المرتبطة
-            .populate('withdrawals');     // جلب جميع السحوبات المرتبطة
+        const { id } = req.params; // احصل على معرف الموظف من المعلمات
+        const employee = await Employee.findById(id);
 
-        if (!employee) return res.status(404).json({ message: 'Employee not found' });
-        res.status(200).json(employee);
+        // تحقق مما إذا كان الموظف موجودًا
+        if (!employee) {
+            return res.status(404).json({ message: 'الموظف غير موجود.' });
+        }
+
+        // بناء المسار الكامل للصورة
+        const employeeDetails = {
+            id: employee._id,
+            firstName: employee.firstName,
+            lastName: employee.lastName,
+            fingerprint: employee.fingerprint,
+            contractStartDate: employee.contractStartDate,
+            contractEndDate: employee.contractEndDate,
+            hourlyRate: employee.hourlyRate,
+            image: `${req.protocol}://${req.get('host')}/${employee.image}`, // بناء مسار الصورة
+            mockAttendances: employee.mockAttendances,
+            withdrawals: employee.withdrawals
+        };
+
+        res.status(200).json(employeeDetails);
     } catch (error) {
-        console.error('Error fetching employee:', error);
-        res.status(500).json({ message: 'Error fetching employee', error });
+        console.error('Error retrieving employee:', error);
+        res.status(500).json({ message: 'خطأ في استرجاع معلومات الموظف.', error });
     }
 };
 
