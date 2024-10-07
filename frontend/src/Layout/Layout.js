@@ -8,7 +8,7 @@ const Layout = ({ children }) => {
     const { user } = useContext(UserContext);
 
     return (
-        <div className="flex flex-col h-screen">
+        <div className="flex flex-col h-screen font-tajawal">
             {/* Header */}
             <Header />
 

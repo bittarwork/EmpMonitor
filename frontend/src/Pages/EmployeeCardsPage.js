@@ -1,86 +1,86 @@
-import React, { useState, useContext } from 'react';
-import { EmployeeContext } from '../Context/EmployeeContext'; // تأكد من تعديل المسار حسب مكان وجود الملف
+// src/pages/EmployeeCardsPage.js
+import React, { useContext, useState, useEffect } from 'react';
+import { EmployeeContext } from '../Context/EmployeeContext';
 import EmployeeCard from '../Components/EmployeeCard';
-import Modal from '../models/Modal';
+import AddEmployeeModal from '../models/AddEmployeeModal';
+import EditEmployeeModal from '../models/EditEmployeeModal';
 
 const EmployeeCardsPage = () => {
-    const { employees, createEmployee, updateEmployee, deleteEmployee } = useContext(EmployeeContext);
-
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const { employees: contextEmployees, createEmployee, updateEmployee, deleteEmployee } = useContext(EmployeeContext);
+    const [employees, setEmployees] = useState(contextEmployees); // استخدام حالة محلية
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [currentEmployee, setCurrentEmployee] = useState(null);
 
-    const handleAddEmployee = (newEmployee) => {
-        createEmployee(newEmployee);
-        setIsAddModalOpen(false);
+    useEffect(() => {
+        setEmployees(contextEmployees); // تحديث الحالة المحلية عند تغيير الموظفين في الكونتيكست
+    }, [contextEmployees]);
+
+    const handleAddEmployee = async (employeeData) => {
+        const newEmployee = await createEmployee(employeeData);
+        setEmployees((prevEmployees) => [...prevEmployees, newEmployee]); // إضافة الموظف الجديد إلى الحالة
+        setIsModalOpen(false); // إغلاق نافذة الإضافة بعد النجاح
     };
 
-    const handleEditEmployee = (updatedEmployee) => {
-        updateEmployee(selectedEmployee.id, updatedEmployee);
-        setIsEditModalOpen(false);
-        setSelectedEmployee(null);
+    const handleEditEmployee = async (employeeData) => {
+        if (currentEmployee) {
+            await updateEmployee(currentEmployee.id, employeeData);
+            setIsEditModalOpen(false); // إغلاق نافذة التعديل بعد النجاح
+            setCurrentEmployee(null); // إعادة تعيين الموظف الحالي
+            // تحديث حالة الموظفين بعد التعديل
+            setEmployees((prevEmployees) =>
+                prevEmployees.map((employee) =>
+                    employee.id === currentEmployee.id ? { ...employee, ...employeeData } : employee
+                )
+            );
+        }
     };
 
-    const handleDeleteEmployee = (id) => {
-        deleteEmployee(id);
+    const handleDeleteEmployee = async (id) => {
+        await deleteEmployee(id);
+        // تحديث الحالة المحلية لإزالة الموظف المحذوف
+        setEmployees((prevEmployees) => prevEmployees.filter((employee) => employee.id !== id));
+    };
+
+    const openEditModal = (employee) => {
+        setCurrentEmployee(employee); // تعيين الموظف الحالي للتعديل
+        setIsEditModalOpen(true);
     };
 
     return (
-        <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">Employee Cards</h1>
-            <div className="overflow-auto max-h-[500px]"> {/* ضبط الحد الأقصى للارتفاع مع التمرير */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {employees.map(employee => (
-                        <EmployeeCard
-                            key={employee.id}
-                            employee={employee}
-                            onViewMore={(id) => { /* هنا يمكنك فتح نافذة عرض المزيد */ }}
-                            onEdit={(employee) => { setSelectedEmployee(employee); setIsEditModalOpen(true); }}
-                            onDelete={handleDeleteEmployee}
-                        />
-                    ))}
-                </div>
+        <div className="min-h-screen p-6 bg-gray-100">
+            <h1 className="text-3xl font-extrabold text-gray-800 mb-6 text-center">إدارة الموظفين</h1>
+            <div className="flex justify-center mb-6">
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="px-6 py-3 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition duration-200"
+                >
+                    إضافة موظف جديد
+                </button>
             </div>
-            <button
-                onClick={() => setIsAddModalOpen(true)}
-                className="bg-green-500 text-white rounded px-4 py-2 mt-4"
-            >
-                Add Employee
-            </button>
-
-            {/* نافذة إضافة موظف */}
-            <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
-                <h2 className="text-xl font-semibold">Add New Employee</h2>
-                {/* نموذج إضافة الموظف */}
-                <form onSubmit={(e) => {
-                    e.preventDefault();
-                    const newEmployee = {
-                        // اجمع بيانات الموظف من النموذج
-                    };
-                    handleAddEmployee(newEmployee);
-                }}>
-                    {/* حقول النموذج مثل الاسم، اللقب، صورة، إلخ */}
-                    <button type="submit" className="bg-blue-500 text-white rounded px-4 py-2 mt-4">Add</button>
-                </form>
-            </Modal>
-
-            {/* نافذة تعديل موظف */}
-            <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
-                <h2 className="text-xl font-semibold">Edit Employee</h2>
-                {/* نموذج تعديل الموظف */}
-                {selectedEmployee && (
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        const updatedEmployee = {
-                            // اجمع بيانات الموظف المحدثة من النموذج
-                        };
-                        handleEditEmployee(updatedEmployee);
-                    }}>
-                        {/* حقول النموذج مثل الاسم، اللقب، صورة، إلخ */}
-                        <button type="submit" className="bg-blue-500 text-white rounded px-4 py-2 mt-4">Update</button>
-                    </form>
-                )}
-            </Modal>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 max-h-[80vh] overflow-y-auto p-4 rounded-lg shadow-lg bg-white">
+                {employees.map((employee) => (
+                    <EmployeeCard
+                        key={employee.id}
+                        employee={employee}
+                        onEdit={() => openEditModal(employee)}
+                        onDelete={() => handleDeleteEmployee(employee.id)}
+                    />
+                ))}
+            </div>
+            {isModalOpen && (
+                <AddEmployeeModal
+                    onClose={() => setIsModalOpen(false)}
+                    onAddEmployee={handleAddEmployee}
+                />
+            )}
+            {isEditModalOpen && currentEmployee && (
+                <EditEmployeeModal
+                    employee={currentEmployee}
+                    onClose={() => setIsEditModalOpen(false)}
+                    onSave={handleEditEmployee}
+                />
+            )}
         </div>
     );
 };

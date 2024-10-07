@@ -17,7 +17,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 exports.uploadImage = upload.single('image');
-
 // دالة لإنشاء موظف جديد
 exports.createEmployee = async (req, res) => {
     try {
@@ -37,8 +36,7 @@ exports.createEmployee = async (req, res) => {
             });
         }
 
-        // تأكد من وجود ملف الصورة في req.file إذا كنت تستخدم multer
-        const image = req.file ? req.file.path : undefined; // حفظ مسار الصورة
+        const image = req.file ? req.file.path : undefined;
 
         const newEmployee = new Employee({
             firstName,
@@ -61,7 +59,7 @@ exports.createEmployee = async (req, res) => {
             contractStartDate: savedEmployee.contractStartDate,
             contractEndDate: savedEmployee.contractEndDate,
             hourlyRate: savedEmployee.hourlyRate,
-            image: `${req.protocol}://${req.get('host')}/${savedEmployee.image}`, // بناء مسار الصورة
+            image: `${req.protocol}://${req.get('host')}/${savedEmployee.image}`,
         };
 
         res.status(201).json(employeeWithImage);
@@ -83,12 +81,28 @@ exports.updateEmployee = async (req, res) => {
             return res.status(404).json({ message: 'الموظف غير موجود' });
         }
 
-        // التحقق من أن تاريخ بداية العقد هو إما اليوم أو لا يتجاوز 15 يوم من اليوم
-        const currentDate = new Date();
-        const maxStartDate = new Date();
-        maxStartDate.setDate(currentDate.getDate() + 15); // أقصى تاريخ لبداية العقد (بعد 15 يوم)
+        // التحقق من تكرار الاسماء والبصمة باستثناء الموظف الحالي
+        const existingEmployee = await Employee.findOne({
+            $or: [
+                { firstName, lastName },
+                { fingerprint }
+            ],
+            _id: { $ne: employeeId } // استثناء الموظف الحالي
+        });
 
-        if (new Date(contractStartDate) < currentDate || new Date(contractStartDate) > maxStartDate) {
+        if (existingEmployee) {
+            return res.status(400).json({
+                message: 'الاسم أو البصمة موجودة بالفعل. يرجى استخدام معلومات مختلفة.'
+            });
+        }
+
+        // الحصول على التاريخ الحالي
+        const currentDate = new Date();
+        // ضبط تاريخ بداية العقد
+        const startDate = new Date(contractStartDate);
+
+        // التحقق من أن تاريخ بداية العقد هو إما اليوم أو لا يتجاوز 15 يوم من اليوم
+        if (startDate < currentDate || startDate > new Date(currentDate.setDate(currentDate.getDate() + 15))) {
             return res.status(400).json({ message: 'تاريخ بداية العقد يجب أن يكون اليوم أو خلال 15 يومًا من اليوم الحالي.' });
         }
 
@@ -109,6 +123,8 @@ exports.updateEmployee = async (req, res) => {
         res.status(500).json({ message: 'حدث خطأ أثناء تعديل بيانات الموظف', error: error.message });
     }
 };
+
+
 
 // دالة لحساب الراتب الأسبوعي
 exports.calculateWeeklySalary = async (req, res) => {

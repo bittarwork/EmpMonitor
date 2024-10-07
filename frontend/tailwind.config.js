@@ -1,4 +1,3 @@
-// tailwind.config.js
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
@@ -11,6 +10,9 @@ module.exports = {
       },
       spacing: {
         '128': '32rem',
+      },
+      fontFamily: {
+        tajawal: ['Tajawal', 'sans-serif'], // إضافة خط Tajawal هنا
       },
     },
   },

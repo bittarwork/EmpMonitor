@@ -75,23 +75,59 @@ export const EmployeeProvider = ({ children }) => {
     const createEmployee = async (employeeData) => {
         dispatch({ type: ACTIONS.SET_LOADING });
         try {
-            const response = await axios.post(API_URL, employeeData);
-            dispatch({ type: ACTIONS.ADD_EMPLOYEE, payload: response.data.employee });
+            // إنشاء FormData وإضافة جميع البيانات
+            const formData = new FormData();
+            formData.append('firstName', employeeData.firstName);
+            formData.append('lastName', employeeData.lastName);
+            formData.append('fingerprint', employeeData.fingerprint);
+            formData.append('contractStartDate', employeeData.contractStartDate);
+            formData.append('contractEndDate', employeeData.contractEndDate);
+            formData.append('hourlyRate', employeeData.hourlyRate);
+
+            // إضافة الصورة إذا كانت موجودة
+            if (employeeData.image) {
+                formData.append('image', employeeData.image);
+            }
+
+            // إرسال الطلب مع تهيئة Content-Type
+            const response = await axios.post(API_URL, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            // تحديث الحالة بعد إضافة الموظف بنجاح
+            dispatch({ type: ACTIONS.ADD_EMPLOYEE, payload: response.data });
         } catch (err) {
             dispatch({ type: ACTIONS.SET_ERROR, payload: err.message });
         }
     };
 
-    // تحديث موظف
+
     const updateEmployee = async (id, employeeData) => {
         dispatch({ type: ACTIONS.SET_LOADING });
+
+        const formData = new FormData();
+        Object.keys(employeeData).forEach(key => {
+            formData.append(key, employeeData[key]);
+        });
+
         try {
-            const response = await axios.put(`${API_URL}/${id}`, employeeData);
+            const response = await axios.put(`${API_URL}/${id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             dispatch({ type: ACTIONS.UPDATE_EMPLOYEE, payload: response.data.employee });
         } catch (err) {
-            dispatch({ type: ACTIONS.SET_ERROR, payload: err.message });
+            // تأكد من أن الخطأ يحتوي على رسالة توضح السبب
+            const errorMessage = err.response?.data?.message || err.message || 'حدث خطأ غير معروف';
+            dispatch({ type: ACTIONS.SET_ERROR, payload: errorMessage });
         }
     };
+
+
+
 
     // حذف موظف
     const deleteEmployee = async (id) => {
