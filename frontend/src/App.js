@@ -3,15 +3,18 @@ import React, { useContext } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Layout from './Layout/Layout';
 import HomePage from './Pages/HomePage';
-import DashboardPage from './dashboard/Dashboard'; // صفحة الـ Dashboard
+import DashboardPage from './dashboard/Dashboard';
 import { UserProvider, UserContext } from './Context/UserContext';
-import { EmployeeProvider } from './Context/EmployeeContext'; // تعديل هنا
+import { EmployeeProvider } from './Context/EmployeeContext';
+import { MaterialProvider } from './Context/MaterialContext'; // إضافة الـ MaterialProvider
 
 function App() {
     return (
         <UserProvider>
             <EmployeeProvider>
-                <MainApp />
+                <MaterialProvider>
+                    <MainApp />
+                </MaterialProvider>
             </EmployeeProvider>
         </UserProvider>
     );
@@ -24,11 +27,8 @@ function MainApp() {
         <Router>
             <Layout>
                 <Routes>
-                    {/* إذا كان المستخدم مسجلاً، يتم تحويله إلى الـ Dashboard */}
                     <Route path="/" element={user ? <Navigate to="/dashboard" /> : <HomePage />} />
-                    {/* تعديل هنا لإضافة النجمة في نهاية المسار */}
                     <Route path="/dashboard/*" element={user ? <DashboardPage /> : <Navigate to="/" />} />
-                    {/* إضافة صفحة قائمة الموظفين */}
                 </Routes>
             </Layout>
         </Router>

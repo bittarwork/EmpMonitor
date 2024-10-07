@@ -101,14 +101,5 @@ exports.searchMaterialsByName = async (req, res) => {
     }
 };
 
-// دالة لحساب قيمة المخزون الكلي
-exports.calculateTotalInventoryValue = async (req, res) => {
-    try {
-        const materials = await Material.find();
-        const totalValue = materials.reduce((total, material) => total + (material.price * material.quantity), 0);
-        res.status(200).json({ totalInventoryValue: totalValue });
-    } catch (error) {
-        console.error('Error calculating total inventory value:', error);
-        res.status(500).json({ message: 'Error calculating total inventory value', error });
-    }
-};
+
+

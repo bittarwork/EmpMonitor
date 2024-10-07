@@ -110,21 +110,12 @@ export const MaterialProvider = ({ children }) => {
         }
     };
 
-    // حساب قيمة المخزون الكلي
-    const calculateTotalInventoryValue = async () => {
-        try {
-            const response = await fetch(`${API_URL}/materials/total-value`);
-            const data = await response.json();
-            dispatch({ type: ACTIONS.TOTAL_INVENTORY_VALUE, payload: data.totalInventoryValue });
-        } catch (error) {
-            console.error('Error calculating total inventory value:', error);
-        }
-    };
+
+
 
     // استخدام useEffect لجلب المواد عند تحميل التطبيق
     useEffect(() => {
         fetchMaterials();
-        calculateTotalInventoryValue();
     }, []);
 
     return (

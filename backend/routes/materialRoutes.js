@@ -20,7 +20,4 @@ router.delete('/:id', MaterialController.deleteMaterial);
 // راوت للبحث عن مواد بواسطة اسم المادة
 router.get('/search', MaterialController.searchMaterialsByName);
 
-// راوت لحساب قيمة المخزون الكلي
-router.get('/total-value', MaterialController.calculateTotalInventoryValue);
-
 module.exports = router;
