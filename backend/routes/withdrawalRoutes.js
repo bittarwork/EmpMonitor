@@ -3,11 +3,10 @@ const express = require('express');
 const {
     createWithdrawal,
     updateWithdrawal,
-    getWithdrawals,
+    getWithdrawalsGroupedByEmployee,
     getWithdrawalById,
     deleteWithdrawal,
-    getWithdrawalsByEmployee,
-    calculateTotalWithdrawals
+    deleteWithdrawalsByEmployeeId
 } = require('../controllers/withdrawalController');
 
 const router = express.Router();
@@ -18,8 +17,8 @@ router.post('/', createWithdrawal);
 // Route لتحديث سحب موجود
 router.put('/:id', updateWithdrawal);
 
-// Route لجلب جميع السحوبات
-router.get('/', getWithdrawals);
+// Route لجلب جميع السحوبات مجمعة حسب الموظف
+router.get('/', getWithdrawalsGroupedByEmployee);
 
 // Route لجلب سحب بواسطة ID
 router.get('/:id', getWithdrawalById);
@@ -27,10 +26,8 @@ router.get('/:id', getWithdrawalById);
 // Route لحذف سحب
 router.delete('/:id', deleteWithdrawal);
 
-// Route للحصول على سحوبات موظف معين
-router.get('/employee/:employeeId', getWithdrawalsByEmployee);
+// مسار لحذف جميع السحوبات الخاصة بموظف معين
+router.delete('/employee/:employeeId', deleteWithdrawalsByEmployeeId);
 
-// Route لحساب القيمة الإجمالية للسحوبات
-router.get('/total-value', calculateTotalWithdrawals);
 
 module.exports = router;
