@@ -40,33 +40,26 @@ exports.createWithdrawal = async (req, res) => {
         res.status(500).json({ message: 'Error creating withdrawal', error });
     }
 };
-
 // دالة لتحديث سحب موجود
 exports.updateWithdrawal = async (req, res) => {
     try {
-        const { employee, material, quantity, note } = req.body;
+        const { material, quantity, note } = req.body; // إزالة employee من المدخلات
         const { id } = req.params;
 
         // التحقق من صحة معرفات ObjectId
-        if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(employee) || !mongoose.Types.ObjectId.isValid(material)) {
+        if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(material)) {
             return res.status(400).json({ message: 'Invalid ID' });
         }
 
         // التحقق من وجود البيانات المطلوبة
-        if (!employee || !material || typeof quantity !== 'number') {
-            return res.status(400).json({ message: 'Employee, material, and quantity are required.' });
+        if (!material || typeof quantity !== 'number') {
+            return res.status(400).json({ message: 'Material and quantity are required.' });
         }
 
         // تحقق من وجود السحب
         const foundWithdrawal = await Withdrawal.findById(id);
         if (!foundWithdrawal) {
             return res.status(404).json({ message: 'Withdrawal not found' });
-        }
-
-        // تحقق من وجود الموظف
-        const foundEmployee = await Employee.findById(employee);
-        if (!foundEmployee) {
-            return res.status(404).json({ message: 'Employee not found' });
         }
 
         // تحقق من وجود المادة
@@ -79,7 +72,7 @@ exports.updateWithdrawal = async (req, res) => {
             return res.status(400).json({ message: 'Quantity must be greater than zero' });
         }
 
-        foundWithdrawal.employee = employee;
+        // تحديث المادة، الكمية والملاحظة فقط
         foundWithdrawal.material = material;
         foundWithdrawal.quantity = quantity;
         foundWithdrawal.note = note;
@@ -91,6 +84,7 @@ exports.updateWithdrawal = async (req, res) => {
         res.status(500).json({ message: 'Error updating withdrawal', error });
     }
 };
+
 
 // دالة لجلب جميع السحوبات مجمعة حسب الموظف
 exports.getWithdrawalsGroupedByEmployee = async (req, res) => {
@@ -149,32 +143,33 @@ exports.getWithdrawalsGroupedByEmployee = async (req, res) => {
 // دالة لجلب سحب بواسطة ID
 exports.getWithdrawalById = async (req, res) => {
     try {
-        const { id } = req.params;
-
-        if (!mongoose.Types.ObjectId.isValid(id)) {
+        const { withdrawalId } = req.params; // استخدم withdrawalId هنا
+        if (!mongoose.Types.ObjectId.isValid(withdrawalId)) {
             return res.status(400).json({ message: 'Invalid withdrawal ID' });
         }
 
-        const withdrawal = await Withdrawal.findById(id).populate('employee').populate('material');
-        if (!withdrawal) return res.status(404).json({ message: 'Withdrawal not found' });
+        const withdrawal = await Withdrawal.findById(withdrawalId).populate('employee').populate('material');
+        if (!withdrawal) {
+            return res.status(404).json({ message: 'Withdrawal not found' });
+        }
 
         res.status(200).json(withdrawal);
     } catch (error) {
-        console.error('Error fetching withdrawal by ID:', error);
         res.status(500).json({ message: 'Error fetching withdrawal by ID', error });
     }
 };
 
+
 // دالة لحذف سحب
 exports.deleteWithdrawal = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { withdrawalId } = req.params;
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
+        if (!mongoose.Types.ObjectId.isValid(withdrawalId)) {
             return res.status(400).json({ message: 'Invalid withdrawal ID' });
         }
 
-        const withdrawal = await Withdrawal.findByIdAndDelete(id);
+        const withdrawal = await Withdrawal.findByIdAndDelete(withdrawalId);
         if (!withdrawal) return res.status(404).json({ message: 'Withdrawal not found' });
 
         res.status(200).json({ message: 'Withdrawal deleted successfully' });

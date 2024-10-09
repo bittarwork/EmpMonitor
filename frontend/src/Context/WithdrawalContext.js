@@ -21,18 +21,18 @@ const withdrawalReducer = (state, action) => {
         case ACTIONS.SET_WITHDRAWALS:
             return { ...state, withdrawals: action.payload };
         case ACTIONS.ADD_WITHDRAWAL:
-            return { ...state, withdrawals: [...state.withdrawals, action.payload] };
+            return { ...state, withdrawals: [...state.withdrawals, action.payload.withdrawal] }; // استخدام withdrawal بدلاً من payload
         case ACTIONS.UPDATE_WITHDRAWAL:
             return {
                 ...state,
                 withdrawals: state.withdrawals.map((withdrawal) =>
-                    withdrawal.id === action.payload.id ? action.payload : withdrawal
+                    withdrawal._id === action.payload.withdrawal._id ? action.payload.withdrawal : withdrawal // تصحيح استخدام _id
                 ),
             };
         case ACTIONS.DELETE_WITHDRAWAL:
             return {
                 ...state,
-                withdrawals: state.withdrawals.filter((withdrawal) => withdrawal.id !== action.payload),
+                withdrawals: state.withdrawals.filter((withdrawal) => withdrawal._id !== action.payload), // تصحيح استخدام _id
             };
         case ACTIONS.SET_WITHDRAWAL:
             return { ...state, currentWithdrawal: action.payload };
@@ -57,7 +57,7 @@ export const WithdrawalProvider = ({ children }) => {
                 throw new Error(`HTTP error! status: ${response.status}`); // معالجة الأخطاء في حالة عدم نجاح الاستجابة
             }
             const data = await response.json();
-            dispatch({ type: ACTIONS.SET_WITHDRAWALS, payload: data });
+            dispatch({ type: ACTIONS.SET_WITHDRAWALS, payload: data }); // payload هو البيانات المجمعة
         } catch (error) {
             console.error("Error fetching withdrawals:", error);
         }
@@ -77,7 +77,7 @@ export const WithdrawalProvider = ({ children }) => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const newWithdrawal = await response.json();
-            dispatch({ type: ACTIONS.ADD_WITHDRAWAL, payload: newWithdrawal });
+            dispatch({ type: ACTIONS.ADD_WITHDRAWAL, payload: newWithdrawal }); // تأكد من أن البيانات في payload صحيحة
         } catch (error) {
             console.error("Error creating withdrawal:", error);
         }
@@ -97,7 +97,7 @@ export const WithdrawalProvider = ({ children }) => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const updatedWithdrawal = await response.json();
-            dispatch({ type: ACTIONS.UPDATE_WITHDRAWAL, payload: updatedWithdrawal });
+            dispatch({ type: ACTIONS.UPDATE_WITHDRAWAL, payload: updatedWithdrawal }); // تأكد من أن البيانات في payload صحيحة
         } catch (error) {
             console.error("Error updating withdrawal:", error);
         }
@@ -126,7 +126,7 @@ export const WithdrawalProvider = ({ children }) => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            dispatch({ type: ACTIONS.DELETE_WITHDRAWAL, payload: withdrawalId });
+            dispatch({ type: ACTIONS.DELETE_WITHDRAWAL, payload: withdrawalId }); // تأكد من تمرير ID السحب المحذوف
         } catch (error) {
             console.error("Error deleting withdrawal:", error);
         }
@@ -141,9 +141,10 @@ export const WithdrawalProvider = ({ children }) => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
+            // تم تحديث الحالة بعد الحذف
             dispatch({
                 type: ACTIONS.SET_WITHDRAWALS,
-                payload: state.withdrawals.filter(withdrawal => withdrawal.employeeId !== employeeId),
+                payload: state.withdrawals.filter(withdrawal => withdrawal.employee !== employeeId), // تصحيح استخدام employee بدلاً من employeeId
             });
         } catch (error) {
             console.error("Error deleting withdrawals by employee:", error);
@@ -172,3 +173,4 @@ export const WithdrawalProvider = ({ children }) => {
 export const useWithdrawals = () => {
     return useContext(WithdrawalContext);
 };
+

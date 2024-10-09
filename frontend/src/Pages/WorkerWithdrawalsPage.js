@@ -1,200 +1,124 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { useWithdrawals } from '../Context/WithdrawalContext';
-import { EmployeeContext } from '../Context/EmployeeContext';
-import { useMaterialContext } from '../Context/MaterialContext';
+// src/Pages/WorkerWithdrawalsPage.js
+
+import React, { useEffect, useState, useContext, useCallback } from 'react';
+import { useWithdrawals } from '../Context/WithdrawalContext'; // استيراد hook useWithdrawals
+import { EmployeeContext } from '../Context/EmployeeContext'; // استيراد الـ Context الخاص بالموظفين
+import { useMaterialContext } from '../Context/MaterialContext'; // استيراد hook useMaterialContext
+import EmployeeWithdrawals from '../Components/EmployeeWithdrawals'; // استيراد مكون عرض المسحوبات
 
 const WorkerWithdrawalsPage = () => {
-    const {
-        withdrawals,
-        fetchWithdrawalsGroupedByEmployee,
-        createWithdrawal,
-        updateWithdrawal,
-        deleteWithdrawal,
-    } = useWithdrawals();
+    const { withdrawals, fetchWithdrawalsGroupedByEmployee, deleteWithdrawal, createWithdrawal } = useWithdrawals();
+    const { employees, fetchEmployees } = useContext(EmployeeContext);
+    const { state: materialState, fetchMaterials } = useMaterialContext(); // استخدام hook لجلب المواد
 
-    const { employees, fetchEmployees, loading: loadingEmployees, error: employeeError } = useContext(EmployeeContext);
-    const { state: materialState, fetchMaterials } = useMaterialContext();
-
-    const [newWithdrawal, setNewWithdrawal] = useState({
-        employee: '',
-        material: '',
+    // الحالة الخاصة بنموذج الإضافة
+    const [formData, setFormData] = useState({
+        employeeId: '',
+        materialId: '',
         quantity: '',
         note: '',
     });
 
-    const [editingWithdrawal, setEditingWithdrawal] = useState(null);
+    // استخدام useCallback لتحسين أداء الدوال
+    const fetchAllData = useCallback(() => {
+        fetchWithdrawalsGroupedByEmployee(); // جلب السحوبات
+        fetchEmployees(); // جلب الموظفين
+        fetchMaterials(); // جلب المواد
+    }, [fetchWithdrawalsGroupedByEmployee, fetchEmployees, fetchMaterials]);
 
-    // Fetch data once when component is mounted
+    // جلب السحوبات وجلب الموظفين والمواد عند تحميل الصفحة
     useEffect(() => {
-        // Fetch withdrawals, employees, and materials when the component mounts
-        fetchWithdrawalsGroupedByEmployee();
-        fetchEmployees();
-        fetchMaterials();
-    }, []); // Empty array ensures this only runs once on mount
+        fetchAllData(); // استدعاء الدالة المحسنة
+    }, []);
 
+    // التعامل مع تغييرات النموذج
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setNewWithdrawal((prev) => ({ ...prev, [name]: value }));
+        setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (editingWithdrawal) {
-            const updatedData = {
-                employee: editingWithdrawal.employeeId,
-                material: editingWithdrawal.materialId,
-                quantity: newWithdrawal.quantity,
-                note: newWithdrawal.note,
-            };
-            updateWithdrawal(editingWithdrawal.withdrawalId, updatedData);
-        } else {
-            const newData = {
-                employee: newWithdrawal.employee,
-                material: newWithdrawal.material,
-                quantity: newWithdrawal.quantity,
-                note: newWithdrawal.note,
-            };
-            createWithdrawal(newData);
+        const { employeeId, materialId, quantity, note } = formData;
+
+        if (!employeeId || !materialId || quantity <= 0) {
+            alert("Please fill in all fields with valid values.");
+            return;
         }
-        setNewWithdrawal({ employee: '', material: '', quantity: '', note: '' });
-        setEditingWithdrawal(null);
-    };
 
-    const handleEdit = (withdrawal) => {
-        setEditingWithdrawal(withdrawal);
-        setNewWithdrawal({
-            employee: withdrawal.employeeId,
-            material: withdrawal.materialId,
-            quantity: withdrawal.quantity,
-            note: withdrawal.note,
+        try {
+            const response = await createWithdrawal({
+                employee: employeeId,
+                material: materialId,
+                quantity: Number(quantity),
+                note: note,
+            });
+
+            if (response && response.message === "Withdrawal created successfully") {
+                alert("Withdrawal added successfully!");
+            } else {
+                alert("Failed to add withdrawal. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error creating withdrawal:", error);
+            alert("An error occurred while creating the withdrawal. Please check the console for details.");
+        }
+
+        setFormData({
+            employeeId: '',
+            materialId: '',
+            quantity: '',
+            note: '',
         });
+
+        fetchAllData();
     };
-
-    const handleDelete = (id) => {
-        deleteWithdrawal(id);
-    };
-
-    if (loadingEmployees || materialState.loading) {
-        return <div>Loading...</div>;
-    }
-
-    if (employeeError || materialState.error) {
-        return <div>Error loading data.</div>;
-    }
 
     return (
-        <div className="max-w-4xl mx-auto p-5">
-            <h1 className="text-2xl font-bold mb-5">Employee Withdrawals</h1>
+        <div className="container mx-auto p-6">
+            <h1 className="text-2xl font-bold mb-6">Employee Withdrawals</h1>
 
-            <form onSubmit={handleSubmit} className="mb-5 bg-gray-100 p-4 rounded">
-                <h2 className="text-xl mb-3">{editingWithdrawal ? 'Edit Withdrawal' : 'Add Withdrawal'}</h2>
-                <div className="flex flex-col space-y-4">
-                    {/* Employee Selection */}
-                    <select
-                        name="employee"
-                        value={newWithdrawal.employee}
-                        onChange={handleChange}
-                        required
-                        className="border p-2 rounded"
-                    >
-                        <option value="" disabled>Select Employee</option>
-                        {employees.map((employee) => (
-                            <option key={employee.id} value={employee.id}>
-                                {employee.firstName} {employee.lastName}
-                            </option>
+            {/* نموذج لإضافة سحب جديد */}
+            <form onSubmit={handleSubmit} className="mb-6 p-4 border border-gray-300 rounded-lg shadow-md bg-white">
+                <h2 className="text-xl font-semibold mb-4">Add New Withdrawal</h2>
+                <label className="block mb-2">
+                    Employee:
+                    <select name="employeeId" value={formData.employeeId} onChange={handleChange} required className="block w-full border border-gray-300 rounded p-2 mt-1">
+                        <option value="">Select Employee</option>
+                        {employees && employees.map(emp => (
+                            <option key={emp.id} value={emp.id}>{`${emp.firstName} ${emp.lastName}`}</option>
                         ))}
                     </select>
-
-                    {/* Material Selection */}
-                    <select
-                        name="material"
-                        value={newWithdrawal.material}
-                        onChange={handleChange}
-                        required
-                        className="border p-2 rounded"
-                    >
-                        <option value="" disabled>Select Material</option>
-                        {materialState.materials.map((material) => (
-                            <option key={material._id} value={material._id}>
-                                {material.name}
-                            </option>
+                </label>
+                <label className="block mb-2">
+                    Material:
+                    <select name="materialId" value={formData.materialId} onChange={handleChange} required className="block w-full border border-gray-300 rounded p-2 mt-1">
+                        <option value="">Select Material</option>
+                        {materialState.materials && materialState.materials.map(mat => (
+                            <option key={mat._id} value={mat._id}>{mat.name}</option> // تأكد من استخدام mat._id
                         ))}
                     </select>
-
-                    <input
-                        type="number"
-                        name="quantity"
-                        value={newWithdrawal.quantity}
-                        onChange={handleChange}
-                        placeholder="Quantity"
-                        required
-                        className="border p-2 rounded"
-                    />
-
-                    <input
-                        type="text"
-                        name="note"
-                        value={newWithdrawal.note}
-                        onChange={handleChange}
-                        placeholder="Notes"
-                        className="border p-2 rounded"
-                    />
-
-                    <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-                        {editingWithdrawal ? 'Update' : 'Add'}
-                    </button>
-                </div>
+                </label>
+                <label className="block mb-2">
+                    Quantity:
+                    <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} required className="block w-full border border-gray-300 rounded p-2 mt-1" />
+                </label>
+                <label className="block mb-2">
+                    Note:
+                    <textarea name="note" value={formData.note} onChange={handleChange} className="block w-full border border-gray-300 rounded p-2 mt-1"></textarea>
+                </label>
+                <button type="submit" className="mt-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-600">Add Withdrawal</button>
             </form>
 
-            {/* Display Withdrawals */}
-            <div className="overflow-auto">
-                <table className="min-w-full border border-gray-300">
-                    <thead>
-                        <tr className="bg-gray-200">
-                            <th className="border px-4 py-2">Material Name</th>
-                            <th className="border px-4 py-2">Price</th>
-                            <th className="border px-4 py-2">Quantity</th>
-                            <th className="border px-4 py-2">Date</th>
-                            <th className="border px-4 py-2">Notes</th>
-                            <th className="border px-4 py-2">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {withdrawals && withdrawals.length > 0 ? (
-                            withdrawals.map((withdrawal) => (
-                                withdrawal.withdrawals && withdrawal.withdrawals.length > 0 ? (
-                                    withdrawal.withdrawals.map((item) => (
-                                        <tr key={item.withdrawalId} className="border-b">
-                                            <td className="border px-4 py-2">{item.materialName}</td>
-                                            <td className="border px-4 py-2">{item.materialPrice}</td>
-                                            <td className="border px-4 py-2">{item.quantity}</td>
-                                            <td className="border px-4 py-2">{new Date(item.date).toLocaleDateString()}</td>
-                                            <td className="border px-4 py-2">{item.note}</td>
-                                            <td className="border px-4 py-2">
-                                                <button
-                                                    onClick={() => handleEdit({ ...item, employeeId: withdrawal.employeeId })}
-                                                    className="bg-yellow-500 text-white p-1 rounded mx-1"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(item.withdrawalId)}
-                                                    className="bg-red-500 text-white p-1 rounded"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr key={withdrawal.employeeId}><td colSpan={6}>No withdrawals found for this employee.</td></tr>
-                                )
-                            ))
-                        ) : (
-                            <tr><td colSpan={6}>No withdrawals available.</td></tr>
-                        )}
-                    </tbody>
-                </table>
+            {/* منطقة عرض المعلومات مع سكرول */}
+            <div className="max-h-96 overflow-y-auto bg-gray-50 p-4 rounded-lg border border-gray-300">
+                {withdrawals.length === 0 ? (
+                    <p>No withdrawals found.</p>
+                ) : (
+                    withdrawals.map((group) => (
+                        <EmployeeWithdrawals key={group.employeeId} employee={employees.find(emp => emp.id === group.employeeId)} withdrawals={group.withdrawals} />
+                    ))
+                )}
             </div>
         </div>
     );

@@ -99,17 +99,6 @@ export const MaterialProvider = ({ children }) => {
         }
     };
 
-    // البحث عن مواد بواسطة الاسم
-    const searchMaterialsByName = async (name) => {
-        try {
-            const response = await fetch(`${API_URL}/materials/search?name=${name}`);
-            const data = await response.json();
-            dispatch({ type: ACTIONS.SEARCH_MATERIALS, payload: data });
-        } catch (error) {
-            console.error('Error searching materials:', error);
-        }
-    };
-
 
 
 
@@ -119,7 +108,7 @@ export const MaterialProvider = ({ children }) => {
     }, []);
 
     return (
-        <MaterialContext.Provider value={{ state, fetchMaterials, addMaterial, updateMaterial, deleteMaterial, searchMaterialsByName }}>
+        <MaterialContext.Provider value={{ state, fetchMaterials, addMaterial, updateMaterial, deleteMaterial }}>
             {children}
         </MaterialContext.Provider>
     );
