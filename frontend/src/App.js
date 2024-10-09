@@ -6,17 +6,20 @@ import HomePage from './Pages/HomePage';
 import DashboardPage from './dashboard/Dashboard';
 import { UserProvider, UserContext } from './Context/UserContext';
 import { EmployeeProvider } from './Context/EmployeeContext';
-import { MaterialProvider } from './Context/MaterialContext'; // إضافة الـ MaterialProvider
+import { MaterialProvider } from './Context/MaterialContext';
+import { WithdrawalProvider } from './Context/WithdrawalContext';
 
 function App() {
     return (
-        <UserProvider>
-            <EmployeeProvider>
-                <MaterialProvider>
-                    <MainApp />
-                </MaterialProvider>
-            </EmployeeProvider>
-        </UserProvider>
+        <WithdrawalProvider>
+            <UserProvider>
+                <EmployeeProvider>
+                    <MaterialProvider>
+                        <MainApp />
+                    </MaterialProvider>
+                </EmployeeProvider>
+            </UserProvider>
+        </WithdrawalProvider>
     );
 }
 
