@@ -83,23 +83,5 @@ exports.deleteMaterial = async (req, res) => {
     }
 };
 
-// دالة للبحث عن مواد بواسطة اسم المادة
-exports.searchMaterialsByName = async (req, res) => {
-    try {
-        const { name } = req.query;
-
-        // تحقق من وجود الاسم
-        if (!name) {
-            return res.status(400).json({ message: 'Name query parameter is required.' });
-        }
-
-        const materials = await Material.find({ name: new RegExp(name, 'i') }); // البحث غير حساس لحالة الأحرف
-        res.status(200).json(materials);
-    } catch (error) {
-        console.error('Error searching materials:', error);
-        res.status(500).json({ message: 'Error searching materials', error });
-    }
-};
-
 
 
