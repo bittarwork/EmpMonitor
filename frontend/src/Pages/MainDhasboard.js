@@ -1,16 +1,23 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { EmployeeContext } from '../Context/EmployeeContext';
-import DateTimeDisplay from '../Components/DateTimeDisplay'; // استيراد المكون
+import DateTimeDisplay from '../Components/DateTimeDisplay';
+import EmployeeModal from '../models/EmployeeModal'; // استيراد مكون المودال
 
 const EmployeePage = () => {
     const {
         employees,
         fetchEmployees,
         loading,
-        setEmployees
+        error,
     } = useContext(EmployeeContext);
 
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    useEffect(() => {
+        fetchEmployees(); // تحميل البيانات عند تحميل الصفحة
+    }, [fetchEmployees]);
 
     const handleSortByName = () => {
         const sortedEmployees = [...employees].sort((a, b) => {
@@ -18,7 +25,7 @@ const EmployeePage = () => {
             const fullNameB = `${b.firstName} ${b.lastName}`;
             return fullNameA.localeCompare(fullNameB);
         });
-        setEmployees(sortedEmployees);
+        // لا حاجة لاستدعاء setEmployees، يمكن استخدام sortedEmployees مباشرة في العرض
     };
 
     const isContractEndingSoon = (contractEndDate) => {
@@ -33,10 +40,19 @@ const EmployeePage = () => {
     const expiringContracts = employees.filter(employee => isContractEndingSoon(employee.contractEndDate)).length;
 
     const filteredEmployees = employees
-        .filter(employee => employee.status === "active") // عرض الموظفين بحالة active فقط
         .filter(employee =>
             `${employee.firstName} ${employee.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
         );
+
+    const openModal = (employee) => {
+        setSelectedEmployee(employee);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedEmployee(null);
+    };
 
     return (
         <div className="flex flex-col flex-grow pb-10">
@@ -44,6 +60,9 @@ const EmployeePage = () => {
 
             {/* إضافة مكون التاريخ والساعة هنا */}
             <DateTimeDisplay />
+
+            {/* عرض الخطأ إذا كان موجوداً */}
+            {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
             <div className="flex flex-col md:flex-row justify-between items-center mb-6">
                 <div className="flex mt-4 md:mt-0 space-x-4">
@@ -96,7 +115,7 @@ const EmployeePage = () => {
                         </thead>
                         <tbody>
                             {filteredEmployees.map((employee) => (
-                                <tr key={employee._id} className="hover:bg-blue-100 transition duration-200">
+                                <tr key={employee._id} className="hover:bg-blue-100 transition duration-200 cursor-pointer" onClick={() => openModal(employee)}>
                                     <td className="border-b px-4 py-4 text-gray-700">{`${employee.firstName} ${employee.lastName}`}</td>
                                     <td className="border-b px-4 py-4 text-gray-700 flex items-center">
                                         {isContractEndingSoon(employee.contractEndDate) ? (
@@ -123,6 +142,13 @@ const EmployeePage = () => {
                     </table>
                 </div>
             )}
+
+            {/* عرض المودال عند فتحه */}
+            <EmployeeModal
+                isOpen={isModalOpen}
+                onRequestClose={closeModal}
+                employee={selectedEmployee}
+            />
         </div>
     );
 };

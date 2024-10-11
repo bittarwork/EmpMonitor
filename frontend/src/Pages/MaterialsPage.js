@@ -13,10 +13,10 @@ const MaterialsPage = () => {
     const [materialToDelete, setMaterialToDelete] = useState(null);
 
     const API_URL = process.env.REACT_APP_API_URL + '/materials';
-
+    const x = 0;
     useEffect(() => {
         fetchMaterials();
-    }, []);
+    }, [x]);
 
     const fetchMaterials = async () => {
         try {

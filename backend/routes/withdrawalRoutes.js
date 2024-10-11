@@ -1,11 +1,11 @@
 const express = require('express'); // استيراد مكتبة Express لإنشاء تطبيق ويب
 const {
-    createWithdrawal, // استيراد دالة إنشاء سحب جديد
-    updateWithdrawal, // استيراد دالة تحديث سحب موجود
-    getWithdrawalsGroupedByEmployee, // استيراد دالة جلب السحوبات مجمعة حسب الموظف
-    getWithdrawalById, // استيراد دالة جلب سحب بواسطة ID
-    deleteWithdrawal, // استيراد دالة حذف سحب
-    deleteWithdrawalsByEmployeeId // استيراد دالة لحذف جميع السحوبات الخاصة بموظف معين
+    createWithdrawal,
+    updateWithdrawal,
+    getWithdrawalsGroupedByEmployee,
+    getWithdrawalById,
+    deleteWithdrawal,
+    deleteWithdrawalsByEmployeeId
 } = require('../controllers/withdrawalController'); // استيراد الدوال من وحدة التحكم
 
 const router = express.Router(); // إنشاء راوتر جديد
@@ -68,12 +68,43 @@ router.put('/:id', updateWithdrawal);
 // مثال على المخرج:
 // [
 //     {
-//         "withdrawals": [...],
-//         "employeeId": "6703d46142225f0ef7bbb5bc"
+//         "withdrawals": [
+//             {
+//                 "withdrawalId": "6706906013c1e8d92f526a9e",
+//                 "materialName": "شوكولا  vdisfjzkvz",
+//                 "materialPrice": 152000,
+//                 "quantity": 132,
+//                 "date": "2024-10-09T14:17:04.788Z",
+//                 "note": "انا جحش "
+//             }
+//         ],
+//         "employeeId": "6703d5333a58cc773dd3a87b"
 //     },
 //     {
-//         "withdrawals": [...],
+//         "withdrawals": [
+//             {
+//                 "withdrawalId": "670705dbb6d4f9e7e6785080",
+//                 "materialName": "سطل خرا ",
+//                 "materialPrice": 152680,
+//                 "quantity": 2,
+//                 "date": "2024-10-09T22:38:19.354Z",
+//                 "note": "This is a test withdrawal"
+//             }
+//         ],
 //         "employeeId": "6703d79915aa3abb03d2ae7e"
+//     },
+//     {
+//         "withdrawals": [
+//             {
+//                 "withdrawalId": "67097c147f1a1bd2a8c4467a",
+//                 "materialName": "سطل خرا ",
+//                 "materialPrice": 152680,
+//                 "quantity": 123,
+//                 "date": "2024-10-11T19:27:16.956Z",
+//                 "note": "شسيشسي"
+//             }
+//         ],
+//         "employeeId": "6703d46142225f0ef7bbb5bc"
 //     }
 // ]
 router.get('/', getWithdrawalsGroupedByEmployee);
@@ -85,13 +116,33 @@ router.get('/', getWithdrawalsGroupedByEmployee);
 // المخرج: بيانات السحب بواسطة ID
 // مثال على المخرج:
 // {
-//     "_id": "67068cb25d570c557c98c440",
-//     "employee": {...}, // بيانات الموظف
-//     "material": {...}, // بيانات المادة
-//     "quantity": 5,
-//     "note": "This is a test withdrawal",
-//     "date": "2024-10-09T14:01:22.117Z",
-//     "__v": 0
+//     "_id": "6706906013c1e8d92f526a9e",
+//         "employee": {
+//         "_id": "6703d5333a58cc773dd3a87b",
+//             "firstName": "123",
+//                 "lastName": "bittar",
+//                     "fingerprint": "asd21edas22",
+//                         "image": "uploads\\image-1728304435446-365739903.jpeg",
+//                             "contractStartDate": "2024-10-10T00:00:00.000Z",
+//                                 "contractEndDate": "2024-10-22T00:00:00.000Z",
+//                                     "hourlyRate": 123,
+//                                         "weeklySalary": 0,
+//                                             "status": "active",
+//                                                 "mockAttendances": [],
+//                                                     "withdrawals": [],
+//                                                         "__v": 0
+//     },
+//     "material": {
+//         "_id": "670445a97b96f70c9981ff3a",
+//             "name": "شوكولا  vdisfjzkvz",
+//                 "price": 152000,
+//                     "quantity": 3260,
+//                         "__v": 0
+//     },
+//     "quantity": 132,
+//         "note": "انا جحش ",
+//             "date": "2024-10-09T14:17:04.788Z",
+//                 "__v": 0
 // }
 router.get('/:withdrawalId', getWithdrawalById);
 
