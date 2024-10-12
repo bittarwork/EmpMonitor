@@ -39,13 +39,13 @@ const Header = () => {
                 <h1 className="text-2xl font-bold">My Company</h1>
                 {user ? (
                     <div className="flex items-center">
-                        <button onClick={handleProfile} className="bg-yellow-500 px-4 py-2 rounded mr-2">Profile</button>
-                        <button onClick={handleLogout} className="bg-red-500 px-4 py-2 rounded">Logout</button>
+                        <button onClick={handleProfile} className="bg-yellow-500 px-4 py-2 rounded mr-2">معلومات المستخدم</button>
+                        <button onClick={handleLogout} className="bg-red-500 px-4 py-2 rounded">تسجيل الخروج</button>
                     </div>
                 ) : (
                     <div className="flex items-center">
-                        <button onClick={handleLogin} className="bg-blue-500 px-4 py-2 rounded mr-2">Login</button>
-                        <button onClick={handleRegister} className="bg-green-500 px-4 py-2 rounded">Register</button>
+                        <button onClick={handleLogin} className="bg-blue-500 px-4 py-2 rounded mr-2">تسجيل الدخول</button>
+                        <button onClick={handleRegister} className="bg-green-500 px-4 py-2 rounded">تسجيل حساب جديد</button>
                     </div>
                 )}
             </div>

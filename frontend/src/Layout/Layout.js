@@ -3,6 +3,7 @@ import { UserContext } from '../Context/UserContext';
 import Sidebar from '../Components/Sidebar';
 import Header from '../Components/Header';
 import Footer from '../Components/Footer';
+import logo from '../assets/images/logo.png'; // استيراد الصورة من المسار المحدد
 
 const Layout = ({ children }) => {
     const { user } = useContext(UserContext);
@@ -18,7 +19,7 @@ const Layout = ({ children }) => {
                     <Sidebar />
                 ) : (
                     <div className="w-64 p-4 bg-gray-800 flex items-center justify-center">
-                        <h1 className="text-white text-2xl">Logo</h1>
+                        <img src={logo} alt="Logo" className="h-48" /> {/* عرض اللوغو */}
                     </div>
                 )}
 

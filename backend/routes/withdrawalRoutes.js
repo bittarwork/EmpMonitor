@@ -5,7 +5,8 @@ const {
     getWithdrawalsGroupedByEmployee,
     getWithdrawalById,
     deleteWithdrawal,
-    deleteWithdrawalsByEmployeeId
+    deleteWithdrawalsByEmployeeId,
+    getWithdrawalsByEmployeeId
 } = require('../controllers/withdrawalController'); // استيراد الدوال من وحدة التحكم
 
 const router = express.Router(); // إنشاء راوتر جديد
@@ -167,5 +168,5 @@ router.delete('/:withdrawalId', deleteWithdrawal);
 //     "message": "تم حذف جميع السحوبات بنجاح."
 // }
 router.delete('/employee/:employeeId', deleteWithdrawalsByEmployeeId);
-
+router.get('/employee/:id', getWithdrawalsByEmployeeId);
 module.exports = router; // تصدير الراوتر لاستخدامه في التطبيق

@@ -196,3 +196,17 @@ exports.deleteWithdrawalsByEmployeeId = async (req, res) => {
         res.status(500).json({ message: 'حدث خطأ أثناء حذف السحوبات', error });
     }
 };
+// دالة لجلب المسحوبات الخاصة بموظف معين
+exports.getWithdrawalsByEmployeeId = async (req, res) => {
+    const employeeId = req.params.id; // الحصول على id الموظف من باراميتر الرابط
+
+    try {
+        const withdrawals = await Withdrawal.find({ employee: employeeId }).populate('material'); // استخدم populate لجلب تفاصيل المادة
+        if (withdrawals.length === 0) {
+            return res.status(404).json({ message: 'لا توجد مسحوبات لهذا الموظف' });
+        }
+        return res.status(200).json(withdrawals); // إعادة المسحوبات
+    } catch (error) {
+        return res.status(500).json({ message: 'حدث خطأ أثناء استرجاع المسحوبات', error: error.message });
+    }
+};
