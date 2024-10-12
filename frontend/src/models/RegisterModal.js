@@ -1,22 +1,36 @@
-// src/models/RegisterModal.js
 import React, { useState, useContext } from 'react';
 import { UserContext } from '../Context/UserContext';
 
 const RegisterModal = ({ onClose }) => {
     const { register, loading, error } = useContext(UserContext);
-    const [name, setName] = useState('');
+    const [username, setUsername] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [submitError, setSubmitError] = useState(null); // لتعقب الأخطاء
+    const [profileImage, setProfileImage] = useState(null);
+    const [submitError, setSubmitError] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setSubmitError(null); // إعادة تعيين الخطأ قبل محاولة التسجيل
+        setSubmitError(null);
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('firstName', firstName);
+        formData.append('lastName', lastName);
+        formData.append('phone', phone);
+        formData.append('email', email);
+        formData.append('password', password);
+        if (profileImage) {
+            formData.append('profileImage', profileImage);
+        }
+
         try {
-            await register(name, email, password); // تسجيل مستخدم جديد باستخدام الـ Context
+            await register(formData); // إرسال formData إلى الدالة register
             onClose(); // إغلاق النافذة عند نجاح التسجيل
         } catch (err) {
-            setSubmitError(err.message || 'فشل التسجيل.'); // عرض الخطأ في حال حدوث مشكلة
+            setSubmitError(err.message || 'فشل التسجيل.');
         }
     };
 
@@ -34,12 +48,42 @@ const RegisterModal = ({ onClose }) => {
                 </div>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label className="block text-gray-700">الاسم:</label>
+                        <label className="block text-gray-700">اسم المستخدم:</label>
                         <input
                             type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 text-gray-800" // إضافة لون النص هنا
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 text-gray-800"
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700">الاسم الأول:</label>
+                        <input
+                            type="text"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 text-gray-800"
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700">الاسم الأخير:</label>
+                        <input
+                            type="text"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 text-gray-800"
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700">رقم الهاتف:</label>
+                        <input
+                            type="text"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 text-gray-800"
                             required
                         />
                     </div>
@@ -49,7 +93,7 @@ const RegisterModal = ({ onClose }) => {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 text-gray-800" // إضافة لون النص هنا
+                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 text-gray-800"
                             required
                         />
                     </div>
@@ -59,14 +103,21 @@ const RegisterModal = ({ onClose }) => {
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 text-gray-800" // إضافة لون النص هنا
+                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 text-gray-800"
                             required
                         />
                     </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700">صورة الملف الشخصي (اختياري):</label>
+                        <input
+                            type="file"
+                            onChange={(e) => setProfileImage(e.target.files[0])}
+                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-400 text-gray-800"
+                        />
+                    </div>
 
-                    {/* عرض الخطأ إذا وُجد */}
                     {submitError && <p className="text-red-500 mb-2">{submitError}</p>}
-                    {error && <p className="text-red-500 mb-2">{error}</p>} {/* عرض أخطاء التسجيل */}
+                    {error && <p className="text-red-500 mb-2">{error}</p>}
 
                     <div className="flex justify-end">
                         <button

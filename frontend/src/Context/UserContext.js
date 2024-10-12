@@ -3,7 +3,7 @@ import axios from 'axios';
 
 export const UserContext = createContext();
 
-const SESSION_DURATION_MS = 3 * 60 * 60 * 1000; // 3 ساعات
+const SESSION_DURATION_MS = 3 * 60 * 60 * 1000;
 
 export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -46,7 +46,6 @@ export const UserProvider = ({ children }) => {
     const logout = async () => {
         setLoading(true);
         try {
-            // لا يوجد نقطة نهاية للخروج من أجل الخادم الحالي، ولكن يمكن التعامل مع الخروج محليًا
             setUser(null);
             localStorage.clear();
         } catch (err) {
@@ -56,8 +55,49 @@ export const UserProvider = ({ children }) => {
         }
     };
 
+    const register = async (userData) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/users/register`, userData);
+            return response.data; // يمكنك العودة إلى الرسالة والمعرف هنا
+        } catch (err) {
+            setError(err.response?.data?.message || 'Error registering');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const updateProfile = async (id, profileData) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await axios.put(`${process.env.REACT_APP_API_URL}/users/profile/${id}`, profileData);
+            setUser(response.data.user); // تحديث معلومات المستخدم
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            return response.data;
+        } catch (err) {
+            setError(err.response?.data?.message || 'Error updating profile');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const updatePassword = async (id, passwordData) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await axios.put(`${process.env.REACT_APP_API_URL}/users/password/${id}`, passwordData);
+            return response.data; // العودة إلى الرسالة هنا
+        } catch (err) {
+            setError(err.response?.data?.message || 'Error updating password');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
-        <UserContext.Provider value={{ user, login, logout, loading, error }}>
+        <UserContext.Provider value={{ user, login, logout, register, updateProfile, updatePassword, loading, error }}>
             {children}
         </UserContext.Provider>
     );

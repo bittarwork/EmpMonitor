@@ -31,7 +31,7 @@ const EmployeeModal = ({ isOpen, onRequestClose, employee }) => {
     const daysRemaining = Math.ceil((contractEndDate - today) / (1000 * 60 * 60 * 24));
 
     return (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center" dir="rtl">
             <div className="mt-5 bg-white rounded-lg shadow-lg w-11/12 md:w-2/3 lg:w-1/2 p-6 max-h-[80vh] overflow-y-auto relative">
                 <button onClick={onRequestClose} className="absolute top-4 right-4 text-gray-600 hover:text-gray-800">
                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

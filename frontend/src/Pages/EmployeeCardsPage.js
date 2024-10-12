@@ -27,7 +27,7 @@ const EmployeeCardsPage = () => {
     });
 
     useEffect(() => {
-        fetchEmployees(); // تحميل البيانات عند تحميل الصفحة
+        fetchEmployees();
     }, [fetchEmployees]);
 
     const openModal = (employee = null) => {
@@ -40,7 +40,7 @@ const EmployeeCardsPage = () => {
                 contractStartDate: employee.contractStartDate,
                 contractEndDate: employee.contractEndDate,
                 hourlyRate: employee.hourlyRate,
-                image: null, // يمكن إضافة الصورة هنا إذا لزم الأمر
+                image: null,
             });
             setIsEditing(true);
         } else {
@@ -96,12 +96,12 @@ const EmployeeCardsPage = () => {
             await createEmployee(employeeData);
         }
         closeModal();
-        fetchEmployees(); // تحديث قائمة الموظفين بعد الإضافة أو التعديل
+        fetchEmployees();
     };
 
     const handleDelete = (id) => {
         deleteEmployee(id).then(() => {
-            fetchEmployees(); // جلب البيانات مجددًا بعد الحذف
+            fetchEmployees();
         });
     };
 
@@ -111,7 +111,6 @@ const EmployeeCardsPage = () => {
         <div className="flex flex-col flex-grow pb-10">
             <h1 className="text-4xl font-bold mb-6 text-gray-800 text-center">بطاقات الموظفين</h1>
 
-            {/* عرض الخطأ إذا كان موجوداً */}
             {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
             <div className="flex justify-end mb-4">

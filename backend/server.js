@@ -1,23 +1,55 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors'); // استيراد حزمة cors
+const cors = require('cors');
+
+// استيراد المسارات
 const employeeRoutes = require('./routes/employeeRoutes');
 const mockAttendanceRoutes = require('./routes/mockAttendanceRoutes');
 const materialRoutes = require('./routes/materialRoutes');
 const withdrawalRoutes = require('./routes/withdrawalRoutes');
 const userRoutes = require('./routes/userRoutes');
+
 const app = express();
 
-// إعداد CORS للسماح بالوصول من المنفذ 3000
+// Logger Middleware to log incoming requests
+app.use((req, res, next) => {
+    console.log('\n======================');
+    console.log(`🌐 Incoming Request: ${req.method} ${req.path}`);
+
+    // Check if request body exists and has keys
+    if (req.body && Object.keys(req.body).length > 0) {
+        console.log('📦 Request Data:', JSON.stringify(req.body, null, 2));
+    } else {
+        console.log('📦 No data attached.');
+    }
+
+    // Save original send function to log response
+    const originalSend = res.send;
+
+    res.send = function (body) {
+        const responseSummary = typeof body === 'string' ? body.slice(0, 100) : JSON.stringify(body).slice(0, 100);
+        console.log(`📝 Server Response (Status: ${res.statusCode}, Length: ${responseSummary.length}):`);
+        console.log(responseSummary, '...');
+        console.log('======================\n');
+
+        originalSend.call(this, body);
+    };
+
+    next();
+});
+
+
+// إعداد CORS
 app.use(cors({
-    origin: 'http://localhost:3000', // عنوان الفرونت إند
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // الطرق المسموح بها
-    allowedHeaders: ['Content-Type', 'Authorization'], // رؤوس HTTP المسموح بها
-    credentials: true // إذا كنت تستخدم ملفات تعريف الارتباط
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 }));
 
-// Middleware to parse JSON requests
+// Middleware لتحليل JSON
 app.use(express.json());
+
 // إعداد المجلد للصور المرفوعة
 app.use('/uploads', express.static('uploads'));
 
@@ -34,12 +66,12 @@ app.use('/api/withdrawals', withdrawalRoutes);
 app.use('/api/users', userRoutes);
 
 // إعداد اتصال قاعدة البيانات
-mongoose.connect('mongodb://localhost:27017/rq')
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('Could not connect to MongoDB', err));
+mongoose.connect('mongodb://localhost:27017/rqt-123')
+    .then(() => console.log('✅ Connected to MongoDB'))
+    .catch(err => console.error('❌ Could not connect to MongoDB', err));
 
-// بدء تشغيل الخادم على المنفذ المحدد أو 5000 افتراضيًا
-const PORT = process.env.PORT || 5000; // تغيير إلى 5000
+// بدء تشغيل الخادم
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`🚀 Server is running on port ${PORT}`);
 });
