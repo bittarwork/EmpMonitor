@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { UserContext } from '../Context/UserContext';
-import Sidebar from '../Components/Sidebar';
-import Header from '../Components/Header';
-import Footer from '../Components/Footer';
+import Sidebar from './Sidebar';
+import Header from './Header';
+import Footer from './Footer';
 import logo from '../assets/images/logo.png'; // استيراد الصورة من المسار المحدد
 
 const Layout = ({ children }) => {
