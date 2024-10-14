@@ -40,15 +40,20 @@ exports.createWithdrawal = async (req, res) => {
         res.status(500).json({ message: 'Error creating withdrawal', error });
     }
 };
-// دالة لتحديث سحب موجود
 exports.updateWithdrawal = async (req, res) => {
     try {
         const { material, quantity, note } = req.body; // إزالة employee من المدخلات
         const { id } = req.params;
 
+        console.log('ID received:', id); // طباعة المعرف المستلم
+
         // التحقق من صحة معرفات ObjectId
-        if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(material)) {
-            return res.status(400).json({ message: 'Invalid ID' });
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: 'Invalid withdrawal ID' });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(material)) {
+            return res.status(400).json({ message: 'Invalid material ID' });
         }
 
         // التحقق من وجود البيانات المطلوبة
