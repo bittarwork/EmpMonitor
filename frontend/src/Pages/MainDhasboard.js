@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { EmployeeContext } from '../Context/EmployeeContext';
-import DateTimeDisplay from '../Components/DateTimeDisplay';
+
 import EmployeeModal from '../models/EmployeeModal'; // استيراد مكون المودال
 
 const EmployeePage = () => {
@@ -20,13 +20,9 @@ const EmployeePage = () => {
     }, [fetchEmployees]);
 
     const handleSortByName = () => {
-        const sortedEmployees = [...employees].sort((a, b) => {
-            const fullNameA = `${a.firstName} ${a.lastName}`;
-            const fullNameB = `${b.firstName} ${b.lastName}`;
-            return fullNameA.localeCompare(fullNameB);
-        });
-        // لا حاجة لاستدعاء setEmployees، يمكن استخدام sortedEmployees مباشرة في العرض
+
     };
+
 
     const isContractEndingSoon = (contractEndDate) => {
         const endDate = new Date(contractEndDate);
@@ -36,13 +32,12 @@ const EmployeePage = () => {
         return daysDiff <= 2 && daysDiff >= 0;
     };
 
-    const totalEmployees = employees.length;
-    const expiringContracts = employees.filter(employee => isContractEndingSoon(employee.contractEndDate)).length;
+    // const totalEmployees = employees.length;
+    // const expiringContracts = employees.filter(employee => isContractEndingSoon(employee.contractEndDate)).length;
 
-    const filteredEmployees = employees
-        .filter(employee =>
-            `${employee.firstName} ${employee.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+    const filteredEmployees = employees.filter(employee =>
+        `${employee.firstName} ${employee.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const openModal = (employee) => {
         setSelectedEmployee(employee);
@@ -55,21 +50,18 @@ const EmployeePage = () => {
     };
 
     return (
-        <div className="flex flex-col flex-grow pb-10">
+        <div className="flex flex-col flex-grow pb-10 px-4" dir='rtl'>
             <h1 className="text-4xl font-bold mb-6 text-gray-800 text-center">إدارة الموظفين</h1>
-
-            {/* إضافة مكون التاريخ والساعة هنا */}
-            <DateTimeDisplay />
 
             {/* عرض الخطأ إذا كان موجوداً */}
             {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
             <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-                <div className="flex mt-4 md:mt-0 space-x-4">
+                <div className="flex mt-4 md:mt-0 space-x-4 w-full">
                     <input
                         type="text"
                         placeholder="بحث عن الموظف"
-                        className="border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full md:w-64"
+                        className="border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 w-2/3 ml-2"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -86,7 +78,7 @@ const EmployeePage = () => {
                 </div>
             </div>
 
-            <div className="bg-white p-6 rounded-md shadow-md mb-6">
+            {/* <div className="bg-white p-6 rounded-md shadow-md mb-6">
                 <h2 className="text-2xl font-bold text-gray-700 mb-4">تحليلات الموظفين</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="bg-gray-50 p-4 rounded-md shadow">
@@ -98,26 +90,26 @@ const EmployeePage = () => {
                         <p className="text-xl font-bold text-gray-900">{expiringContracts}</p>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             {loading ? (
                 <div className="text-center text-gray-700 text-lg">جاري التحميل...</div>
             ) : (
-                <div className="overflow-x-auto flex-grow" style={{ maxHeight: '350px' }}>
+                <div className="overflow-x-auto flex-grow">
                     <table className="min-w-full bg-white rounded-md shadow-md">
                         <thead className="bg-blue-300">
                             <tr>
-                                <th className="border-b px-4 py-4 text-left text-gray-600 sticky top-0 bg-blue-300 z-10">اسم الموظف</th>
-                                <th className="border-b px-4 py-4 text-left text-gray-600 sticky top-0 bg-blue-300 z-10">حالة العامل</th>
-                                <th className="border-b px-4 py-4 text-left text-gray-600 sticky top-0 bg-blue-300 z-10">ساعة الدخول</th>
-                                <th className="border-b px-4 py-4 text-left text-gray-600 sticky top-0 bg-blue-300 z-10">ساعة الخروج</th>
+                                <th className="border-b px-4 py-4 text-right text-gray-600 sticky top-0">اسم الموظف</th>
+                                <th className="border-b px-4 py-4 text-right text-gray-600 sticky top-0">حالة العامل</th>
+                                <th className="border-b px-4 py-4 text-right text-gray-600 sticky top-0">ساعة الدخول</th>
+                                <th className="border-b px-4 py-4 text-right text-gray-600 sticky top-0">ساعة الخروج</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredEmployees.map((employee) => (
                                 <tr key={employee._id} className="hover:bg-blue-100 transition duration-200 cursor-pointer" onClick={() => openModal(employee)}>
-                                    <td className="border-b px-4 py-4 text-gray-700">{`${employee.firstName} ${employee.lastName}`}</td>
-                                    <td className="border-b px-4 py-4 text-gray-700 flex items-center">
+                                    <td className="border-b text-right px-4 py-4 text-gray-700">{`${employee.firstName} ${employee.lastName}`}</td>
+                                    <td className="border-b text-right px-4 py-4 text-gray-700 flex items-center">
                                         {isContractEndingSoon(employee.contractEndDate) ? (
                                             <span className="text-red-500 flex items-center">
                                                 ⚠️ عقد ينتهي خلال يومين

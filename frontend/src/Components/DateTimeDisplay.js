@@ -1,5 +1,6 @@
 // src/Components/DateTimeDisplay.js
 import React, { useEffect, useState } from 'react';
+import { FaClock } from 'react-icons/fa'; // استخدام أيقونة ساعة
 
 const DateTimeDisplay = () => {
     const [currentDateTime, setCurrentDateTime] = useState(new Date());
@@ -24,9 +25,12 @@ const DateTimeDisplay = () => {
     };
 
     return (
-        <div className="text-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-800">{formatTime(currentDateTime)}</h2>
-            <span className="text-gray-600">{formatDate(currentDateTime)}</span>
+        <div className="flex items-center text-white">
+            <FaClock className="text-2xl text-yellow-500 mr-2" /> {/* أيقونة الساعة بلون أصفر */}
+            <div className="flex flex-col text-right">
+                <h2 className="text-lg font-bold">{formatTime(currentDateTime)}</h2>
+                <span className="text-sm">{formatDate(currentDateTime)}</span>
+            </div>
         </div>
     );
 };

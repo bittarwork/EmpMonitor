@@ -5,6 +5,7 @@ import LoginModal from '../models/LoginModal';
 import RegisterModal from '../models/RegisterModal';
 import LogoutModal from '../models/LogoutModal';
 import ProfileModal from '../models/ProfileModal'; // استيراد مكون بروفايل المستخدم
+import DateTimeDisplay from '../Components/DateTimeDisplay'; // استيراد مكون عرض التاريخ والوقت
 
 const Header = () => {
     const { user, logout } = useContext(UserContext);
@@ -37,6 +38,7 @@ const Header = () => {
         <header className="bg-gray-800 text-white p-4">
             <div className="container mx-auto flex justify-between items-center">
                 <h1 className="text-2xl font-bold">My Company</h1>
+                <DateTimeDisplay /> {/* إضافة مكون عرض التاريخ والوقت */}
                 {user ? (
                     <div className="flex items-center">
                         <button onClick={handleProfile} className="bg-yellow-500 px-4 py-2 rounded mr-2">معلومات المستخدم</button>

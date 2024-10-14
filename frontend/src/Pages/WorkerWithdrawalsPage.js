@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import WithdrawalFormPopup from '../models/WithdrawalFormPopup';
+import WithdrawalList from '../Components/WithdrawalList';
 
 const WorkerWithdrawalsPage = () => {
     const [withdrawals, setWithdrawals] = useState([]);
@@ -14,7 +16,9 @@ const WorkerWithdrawalsPage = () => {
         quantity: 1,
         note: ''
     });
-    const [selectedWithdrawal, setSelectedWithdrawal] = useState(null); // حالة جديدة للتحديث
+    const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -27,7 +31,7 @@ const WorkerWithdrawalsPage = () => {
                 setEmployees(employeeResponse.data);
                 setMaterials(materialResponse.data);
             } catch (err) {
-                setError('Error fetching data');
+                setError('خطأ في تحميل البيانات');
             } finally {
                 setLoading(false);
             }
@@ -52,8 +56,8 @@ const WorkerWithdrawalsPage = () => {
             note: withdrawal.note
         });
         setSelectedWithdrawal(withdrawal);
+        setIsPopupOpen(true);
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log(e);
@@ -115,6 +119,12 @@ const WorkerWithdrawalsPage = () => {
         }
     };
 
+    const resetForm = () => {
+        setNewWithdrawal({ employee: '', material: '', quantity: 1, note: '' });
+        setSelectedWithdrawal(null);
+        setIsPopupOpen(false);
+    };
+
     const handleDeleteWithdrawal = async (withdrawalId) => {
         if (!withdrawalId) {
             console.error("Invalid withdrawal ID");
@@ -123,9 +133,8 @@ const WorkerWithdrawalsPage = () => {
 
         try {
             await axios.delete(`${process.env.REACT_APP_API_URL}/withdrawals/${withdrawalId}`);
-            setSuccessMessage('Withdrawal deleted successfully');
+            setSuccessMessage('تم حذف السحب بنجاح');
             setError(null);
-
             setWithdrawals((prev) =>
                 prev.map(employeeWithdrawals => ({
                     ...employeeWithdrawals,
@@ -133,137 +142,88 @@ const WorkerWithdrawalsPage = () => {
                 }))
             );
         } catch (err) {
-            setError('Error deleting withdrawal');
+            setError('خطأ في حذف السحب');
         }
     };
 
     const handleDeleteAllWithdrawals = async (employeeId) => {
+        if (!employeeId) {
+            console.error("Invalid employee ID");
+            return;
+        }
+
         try {
             await axios.delete(`${process.env.REACT_APP_API_URL}/withdrawals/employee/${employeeId}`);
-            setSuccessMessage('All withdrawals for this employee have been deleted');
+            setSuccessMessage('تم حذف جميع السحوبات لهذا الموظف');
             setError(null);
-
             setWithdrawals((prev) => prev.filter((ew) => ew.employeeId !== employeeId));
         } catch (err) {
-            setError('Error deleting all withdrawals');
+            setError('خطأ في حذف جميع السحوبات');
         }
     };
 
     const getEmployeeName = (id) => {
         const employee = employees.find(emp => emp.id === id);
-        return employee ? `${employee.firstName} ${employee.lastName}` : 'Unknown Employee';
+        return employee ? `${employee.firstName} ${employee.lastName}` : 'موظف غير معروف';
     };
 
-    const getMaterialName = (id) => {
-        const material = materials.find(mat => mat._id === id);
-        return material ? material.name : 'Unknown Material';
-    };
 
-    if (loading) return <div className="text-center text-lg">Loading...</div>;
+    const filteredWithdrawals = withdrawals.filter((employeeWithdrawals) =>
+        getEmployeeName(employeeWithdrawals.employeeId).toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    if (loading) return <div className="text-center text-lg">جاري التحميل...</div>;
 
     return (
-        <div className="max-w-4xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Withdrawals</h1>
-
+        <div className="min-w-full mx-auto p-6 " dir="rtl">
+            <h1 className="text-2xl font-bold mb-4 text-center">السحوبات</h1>
             {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
             {successMessage && <div className="bg-green-100 text-green-700 p-3 rounded mb-4">{successMessage}</div>}
 
-            <form onSubmit={handleSubmit} className="mb-6 p-4 border rounded-lg shadow-lg bg-gray-50">
-                <h2 className="text-xl font-semibold mb-2">{selectedWithdrawal ? 'Update Withdrawal' : 'Add New Withdrawal'}</h2>
-                <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Employee</label>
-                    <select
-                        name="employee"
-                        value={newWithdrawal.employee}
-                        onChange={handleChange}
-                        required
-                        className="border rounded-lg p-2 w-full"
-                    >
-                        <option value="" disabled>Select an employee</option>
-                        {employees.map(employee => (
-                            <option key={employee.id} value={employee.id}>
-                                {`${employee.firstName} ${employee.lastName}`}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Material</label>
-                    <select
-                        name="material"
-                        value={newWithdrawal.material}
-                        onChange={handleChange}
-                        required
-                        className="border rounded-lg p-2 w-full"
-                    >
-                        <option value="" disabled>Select a material</option>
-                        {materials.map(material => (
-                            <option key={material._id} value={material._id}>
-                                {material.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Quantity</label>
-                    <input
-                        type="number"
-                        name="quantity"
-                        value={newWithdrawal.quantity}
-                        onChange={handleChange}
-                        required
-                        min="1"
-                        className="border rounded-lg p-2 w-full"
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Note</label>
-                    <textarea
-                        name="note"
-                        value={newWithdrawal.note}
-                        onChange={handleChange}
-                        className="border rounded-lg p-2 w-full"
-                    />
-                </div>
-                <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2 px-4">
-                    {selectedWithdrawal ? 'Update Withdrawal' : 'Add Withdrawal'}
+            <div className="flex items-center gap-x-2 mb-4">
+                <input
+                    type="text"
+                    placeholder="البحث حسب الاسم"
+                    className="border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 w-2/3 ml-2"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <button
+                    onClick={() => setIsPopupOpen(true)}
+                    className="bg-blue-600 text-white px-5 py-3 rounded-md hover:bg-blue-700 transition duration-300 shadow-md"
+                >
+                    إضافة سحب جديد
                 </button>
-            </form>
+            </div>
 
-            {withdrawals.length === 0 ? (
-                <p className="text-center">No withdrawals found for this employee.</p>
+            <WithdrawalFormPopup
+                isOpen={isPopupOpen}
+                onClose={resetForm}
+                onSubmit={handleSubmit}
+                newWithdrawal={newWithdrawal}
+                handleChange={handleChange}
+                employees={employees}
+                materials={materials}
+            />
+
+            {filteredWithdrawals.length === 0 ? (
+                <p className="text-center">لا توجد سحوبات لهذا الموظف.</p>
             ) : (
-                withdrawals.map((employeeWithdrawals) => (
-                    <div key={employeeWithdrawals.employeeId} className="border p-4 mb-4 rounded-lg shadow-lg bg-white">
-                        <h2 className="text-xl font-semibold mb-2">Employee: {getEmployeeName(employeeWithdrawals.employeeId)}</h2>
+                filteredWithdrawals.map((employeeWithdrawals) => (
+                    <div key={employeeWithdrawals.employeeId} className="border p-4 mb-4 rounded-lg shadow-md bg-white">
+                        <h2 className="text-xl font-semibold mb-2">الموظف: {getEmployeeName(employeeWithdrawals.employeeId)}</h2>
+                        <img></img>
                         <button
                             onClick={() => handleDeleteAllWithdrawals(employeeWithdrawals.employeeId)}
                             className="bg-red-500 hover:bg-red-600 text-white rounded-lg py-1 px-3 mb-3"
                         >
-                            Delete All Withdrawals for this Employee
+                            حذف جميع السحوبات لهذا الموظف
                         </button>
-                        <ul className="list-disc ml-5">
-                            {employeeWithdrawals.withdrawals.map((withdrawal, index) => (
-                                <li key={Math.random().toString(36).substr(2, 9) + index} className="mb-2">
-                                    <p className="font-medium">Material Name: <span className="font-normal">{getMaterialName(withdrawal.material)}</span></p>
-                                    <p>Quantity: <span className="font-normal">{withdrawal.quantity}</span></p>
-                                    <p>Note: <span className="font-normal">{withdrawal.note}</span></p>
-                                    <p>Date: <span className="font-normal">{new Date(withdrawal.date).toLocaleString()}</span></p>
-                                    <button
-                                        onClick={() => handleEdit(withdrawal)} // زر التحديث
-                                        className="bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg py-1 px-3 mr-2"
-                                    >
-                                        Update
-                                    </button>
-                                    <button
-                                        onClick={() => handleDeleteWithdrawal(withdrawal.withdrawalId)}
-                                        className="bg-red-500 hover:bg-red-600 text-white rounded-lg py-1 px-3"
-                                    >
-                                        Delete Withdrawal
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
+                        <WithdrawalList
+                            withdrawals={employeeWithdrawals.withdrawals}
+                            onEdit={handleEdit}
+                            onDelete={handleDeleteWithdrawal}
+                        />
                     </div>
                 ))
             )}

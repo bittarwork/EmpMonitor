@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { EmployeeContext } from '../Context/EmployeeContext';
-import EmployeeModal from '../models/EmployyeAddEdit'; // استيراد مكون المودال
+import EmployeeModal from '../models/EmployyeAddEdit';
+import EmployeeCard from '../Components/EmployeeCard';
 
 const EmployeeCardsPage = () => {
     const {
@@ -25,6 +26,8 @@ const EmployeeCardsPage = () => {
         hourlyRate: '',
         image: null,
     });
+
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         fetchEmployees();
@@ -105,51 +108,48 @@ const EmployeeCardsPage = () => {
         });
     };
 
-
+    const filteredEmployees = employees.filter(employee =>
+        `${employee.firstName} ${employee.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
-        <div className="flex flex-col flex-grow pb-10">
+        <div className="flex flex-col flex-grow pb-10 px-4" dir='rtl'>
             <h1 className="text-4xl font-bold mb-6 text-gray-800 text-center">بطاقات الموظفين</h1>
-
             {error && <div className="text-red-500 text-center mb-4">{error}</div>}
-
-            <div className="flex justify-end mb-4">
+            <div className="flex gap-x-2 items-center mb-6">
                 <button
                     onClick={() => openModal()}
                     className="bg-blue-600 text-white px-5 py-3 rounded-md hover:bg-blue-700 transition duration-300 shadow-md">
                     إضافة موظف جديد
                 </button>
+                <div className="w-2/3">
+                    <input
+                        type="text"
+                        placeholder="بحث عن موظف..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 w-2/3 ml-2"
+                    />
+                </div>
             </div>
 
             {loading ? (
                 <div className="text-center text-gray-700 text-lg">جاري التحميل...</div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {employees.map((employee) => (
-                        <div key={employee._id} className="bg-white p-6 rounded-md shadow-md">
-                            <h2 className="text-xl font-bold">{`${employee.firstName} ${employee.lastName}`}</h2>
-                            <p>البصمة: {employee.fingerprint}</p>
-                            <p>تاريخ بدء العقد: {employee.contractStartDate}</p>
-                            <p>تاريخ انتهاء العقد: {employee.contractEndDate}</p>
-                            <p>الأجر بالساعة: {employee.hourlyRate}</p>
-                            <div className="flex justify-between mt-4">
-                                <button
-                                    onClick={() => openModal(employee)}
-                                    className="bg-yellow-500 text-white px-3 py-2 rounded-md hover:bg-yellow-600 transition duration-300">
-                                    تعديل
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(employee.id)}
-                                    className="bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 transition duration-300">
-                                    حذف
-                                </button>
-                            </div>
-                        </div>
-                    ))}
+                <div className="overflow-auto" style={{ maxHeight: '500px' }}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                        {filteredEmployees.map((employee) => (
+                            <EmployeeCard
+                                key={employee.id}
+                                employee={employee}
+                                onEdit={openModal}
+                                onDelete={handleDelete}
+                            />
+                        ))}
+                    </div>
                 </div>
             )}
 
-            {/* عرض المودال عند فتحه */}
             {isModalOpen && (
                 <EmployeeModal
                     isOpen={isModalOpen}
