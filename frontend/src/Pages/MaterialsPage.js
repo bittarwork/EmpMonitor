@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Popup from '../models/PopupMaterial';
 import ConfirmationModal from '../models/ConfirmationModal';
@@ -13,19 +13,19 @@ const MaterialsPage = () => {
     const [materialToDelete, setMaterialToDelete] = useState(null);
 
     const API_URL = process.env.REACT_APP_API_URL + '/materials';
-    const x = 0;
-    useEffect(() => {
-        fetchMaterials();
-    }, [x]);
 
-    const fetchMaterials = async () => {
+    const fetchMaterials = useCallback(async () => {
         try {
             const response = await axios.get(API_URL);
             setMaterials(response.data);
         } catch (err) {
             console.error('حدث خطأ أثناء جلب المواد:', err);
         }
-    };
+    }, [API_URL]);
+
+    useEffect(() => {
+        fetchMaterials();
+    }, [fetchMaterials]);
 
     const handleAddClick = () => {
         setCurrentMaterial({ name: '', price: '', quantity: '' });
@@ -70,40 +70,13 @@ const MaterialsPage = () => {
         }
     };
 
-    // Filtered materials based on search term
     const filteredMaterials = materials.filter((material) =>
         material.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // // Analytical data
-    // const totalMaterials = materials.length;
-    // const totalPrice = materials.reduce((acc, material) => acc + material.price, 0);
-    // const avgPrice = totalMaterials > 0 ? (totalPrice / totalMaterials).toFixed(2) : 0;
-    // const totalQuantity = materials.reduce((acc, material) => acc + material.quantity, 0);
-
     return (
         <div className="min-h-screen min-w-full" dir="rtl">
             <h1 className="text-4xl font-bold mb-8 text-center">إدارة المواد</h1>
-
-            {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-blue-500 text-white p-4 rounded-md shadow-md text-center">
-                    <h3 className="text-xl font-semibold">إجمالي المواد</h3>
-                    <p className="text-2xl">{totalMaterials}</p>
-                </div>
-                <div className="bg-green-500 text-white p-4 rounded-md shadow-md text-center">
-                    <h3 className="text-xl font-semibold">إجمالي السعر</h3>
-                    <p className="text-2xl">${totalPrice}</p>
-                </div>
-                <div className="bg-yellow-500 text-white p-4 rounded-md shadow-md text-center">
-                    <h3 className="text-xl font-semibold">متوسط السعر</h3>
-                    <p className="text-2xl">${avgPrice}</p>
-                </div>
-                <div className="bg-purple-500 text-white p-4 rounded-md shadow-md text-center">
-                    <h3 className="text-xl font-semibold">إجمالي الكمية</h3>
-                    <p className="text-2xl">{totalQuantity}</p>
-                </div>
-            </div> */}
-
             <div className="flex items-center gap-x-2 mb-4">
                 <button
                     onClick={handleAddClick}
@@ -119,7 +92,6 @@ const MaterialsPage = () => {
                     className="border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 w-2/3 ml-2"
                 />
             </div>
-
             <div className="overflow-x-auto flex-grow" style={{ maxHeight: '450px' }}>
                 <table className="w-full bg-white rounded-md shadow-md">
                     <thead className="bg-blue-500">
@@ -155,7 +127,6 @@ const MaterialsPage = () => {
                     </tbody>
                 </table>
             </div>
-
             <Popup
                 visible={popupVisible}
                 onClose={() => setPopupVisible(false)}
@@ -163,7 +134,6 @@ const MaterialsPage = () => {
                 onSubmit={handlePopupSubmit}
                 onChange={(field, value) => setCurrentMaterial({ ...currentMaterial, [field]: value })}
             />
-
             <ConfirmationModal
                 visible={confirmationVisible}
                 onConfirm={handleConfirmationConfirm}

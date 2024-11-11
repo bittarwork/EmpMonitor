@@ -60,7 +60,7 @@ export const UserProvider = ({ children }) => {
         setError(null);
         try {
             const response = await axios.post(`${process.env.REACT_APP_API_URL}/users/register`, userData);
-            return response.data; // يمكنك العودة إلى الرسالة والمعرف هنا
+            return response.data;
         } catch (err) {
             setError(err.response?.data?.message || 'Error registering');
         } finally {

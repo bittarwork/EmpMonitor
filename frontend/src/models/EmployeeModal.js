@@ -30,6 +30,14 @@ const EmployeeModal = ({ isOpen, onRequestClose, employee }) => {
     const today = new Date();
     const daysRemaining = Math.ceil((contractEndDate - today) / (1000 * 60 * 60 * 24));
 
+    // If the contract end date has passed
+    const contractStatusMessage = daysRemaining < 0 ? "انتهت صلاحية العقد" : `${daysRemaining} يوم متبقي في العقد`;
+
+    // If the employee has 0 attendances
+    const attendanceStatusMessage = employee.mockAttendances.length === 0
+        ? "لم يتم تسجيل أي حضور لهذا الموظف."
+        : `${employee.mockAttendances.length} حضور مسجل`;
+
     return (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center" dir="rtl">
             <div className="mt-5 bg-white rounded-lg shadow-lg w-11/12 md:w-2/3 lg:w-1/2 p-4 max-h-[80vh] overflow-y-auto relative">
@@ -56,13 +64,13 @@ const EmployeeModal = ({ isOpen, onRequestClose, employee }) => {
                         <strong>المعدل الساعي:</strong> {employee.hourlyRate} ل.س
                     </div>
                     <div className="bg-gray-100 p-2 rounded-md shadow-sm">
-                        <strong>البصمة:</strong> {employee.fingerprint}
+                        <strong>عدد الحضور:</strong> {attendanceStatusMessage}
                     </div>
                     <div className="bg-gray-100 p-2 rounded-md shadow-sm">
-                        <strong>عدد الحضور:</strong> {employee.mockAttendances.length}
-                    </div>
-                    <div className="bg-gray-100 p-2 rounded-md shadow-sm">
-                        <strong>الأيام المتبقية في العقد:</strong> {daysRemaining} يوم
+                        <strong>الأيام المتبقية في العقد:</strong>
+                        <span className={daysRemaining < 0 ? "text-red-600" : "text-green-600"}>
+                            {contractStatusMessage}
+                        </span>
                     </div>
                 </div>
 
