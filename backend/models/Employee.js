@@ -14,10 +14,11 @@ const employeeSchema = new mongoose.Schema({
         enum: ['active', 'expired'],
         default: 'active'
     },
-    mockAttendances: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MockAttendance' }],
+    attendances: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Attendance' }],
     withdrawals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Withdrawal' }]
 });
 
+// دالة حساب الراتب الأسبوعي
 employeeSchema.methods.calculateWeeklySalary = function (hoursWorked, totalWithdrawals) {
     return (hoursWorked * this.hourlyRate) - totalWithdrawals;
 };

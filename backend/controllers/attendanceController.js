@@ -1,43 +1,57 @@
 // controllers/attendanceController.js
+const fs = require('fs');
+const csv = require('csv-parser');
+const moment = require('moment');
+const Employee = require('../models/Employee');
 const Attendance = require('../models/Attendance');
 
-// الحصول على جميع سجلات الحضور
-exports.getAllAttendances = async (req, res) => {
-    try {
-        const attendances = await Attendance.find().populate('employee');
-        res.json(attendances);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
+// دالة لتحليل ملف CSV وإدراج معلوماته في قاعدة البيانات
+async function processAttendanceCSV(filePath) {
+    const attendanceData = [];
 
-// إضافة سجل حضور جديد
-exports.createAttendance = async (req, res) => {
-    const attendance = new Attendance(req.body);
-    try {
-        const savedAttendance = await attendance.save();
-        res.status(201).json(savedAttendance);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-};
+    return new Promise((resolve, reject) => {
+        fs.createReadStream(filePath)
+            .pipe(csv({ headers: ['رقم البطاقة', 'المكان', 'التاريخ والوقت', 'الاسم', 'الادارة'] }))
+            .on('data', (row) => {
+                row.dateTime = moment(row['التاريخ والوقت'], 'DD/MM/YYYY HH:mm');
+                row.firstName = row['الاسم'].split(' ')[0];
+                row.lastName = row['الاسم'].split(' ')[1] || '';
+                attendanceData.push(row);
+            })
+            .on('end', async () => {
+                for (const record of attendanceData) {
+                    await matchAndSaveAttendance(record);
+                }
+                resolve();
+            })
+            .on('error', (error) => reject(error));
+    });
+}
 
-// تحديث سجل حضور
-exports.updateAttendance = async (req, res) => {
+// دالة لمطابقة السجل مع الموظف وتخزين الحضور
+async function matchAndSaveAttendance(record) {
     try {
-        const updatedAttendance = await Attendance.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        res.json(updatedAttendance);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-};
+        const employee = await Employee.findOne({
+            firstName: record.firstName,
+            lastName: record.lastName,
+            fingerprint: record['رقم البطاقة']
+        });
 
-// حذف سجل حضور
-exports.deleteAttendance = async (req, res) => {
-    try {
-        await Attendance.findByIdAndDelete(req.params.id);
-        res.status(204).json();
+        if (employee) {
+            const attendance = new Attendance({
+                employee: employee._id,
+                date: record.dateTime.toDate(),
+                time: record.dateTime.format('HH:mm'),
+                location: record['المكان']
+            });
+
+            await attendance.save();
+        } else {
+            console.log(`Employee with name ${record.firstName} ${record.lastName} and card number ${record['رقم البطاقة']} not found`);
+        }
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error saving attendance record:', error);
     }
-};
+}
+
+module.exports = { processAttendanceCSV };

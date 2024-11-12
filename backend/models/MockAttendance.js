@@ -9,19 +9,17 @@ const mockAttendanceSchema = new mongoose.Schema({
     hoursWorked: { type: Number, default: 0 }
 });
 
-// دالة قبل حفظ السجل لحساب الساعات
 mockAttendanceSchema.pre('save', function (next) {
     if (this.checkOut) {
         const checkInTime = new Date(this.checkIn).getTime();
         const checkOutTime = new Date(this.checkOut).getTime();
-        this.hoursWorked = (checkOutTime - checkInTime) / (1000 * 60 * 60); // تحويل إلى ساعات
+        this.hoursWorked = (checkOutTime - checkInTime) / (1000 * 60 * 60);
     }
     next();
 });
 
-// دالة لحساب الراتب استنادًا إلى عدد الساعات
 mockAttendanceSchema.methods.calculateSalary = function () {
-    return this.hoursWorked * this.employee.hourlyRate; // استخدام أجر الساعة من الموظف
+    return this.hoursWorked * this.employee.hourlyRate;
 };
 
 const MockAttendance = mongoose.model('MockAttendance', mockAttendanceSchema);
