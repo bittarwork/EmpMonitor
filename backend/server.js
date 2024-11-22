@@ -4,7 +4,6 @@ const cors = require('cors');
 
 // استيراد المسارات
 const employeeRoutes = require('./routes/employeeRoutes');
-const attendanceRoutes = require('./routes/attendanceRoutes');
 const materialRoutes = require('./routes/materialRoutes');
 const withdrawalRoutes = require('./routes/withdrawalRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -60,7 +59,6 @@ app.get('/api', (req, res) => {
 
 // استخدام المسارات الأخرى
 app.use('/api/employees', employeeRoutes);
-app.use('/api/attendance', attendanceRoutes);
 app.use('/api/materials', materialRoutes);
 app.use('/api/withdrawals', withdrawalRoutes);
 app.use('/api/users', userRoutes);

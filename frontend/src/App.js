@@ -5,7 +5,7 @@ import Layout from './Layout/Layout';
 import HomePage from './Pages/HomePage';
 import DashboardPage from './dashboard/Dashboard';
 import { UserProvider, UserContext } from './Context/UserContext';
-import { EmployeeProvider } from './Context/EmployeeContext';
+import { EmployeeProvider } from './Context/employeeContext';
 
 function App() {
     return (

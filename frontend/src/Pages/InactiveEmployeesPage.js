@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { EmployeeContext } from '../Context/EmployeeContext';
+import { EmployeeContext } from '../Context/employeeContext';
 import EmployeeModal from '../models/EmployeeModal';
 
 const InactiveEmployeesPage = () => {
