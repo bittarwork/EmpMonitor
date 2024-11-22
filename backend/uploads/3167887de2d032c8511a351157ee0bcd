@@ -1,0 +1,37 @@
+<?xml version="1.0" standalone="yes"?>
+<DATAPACKET Version="2.0">
+<METADATA>
+<FIELDS>
+<FIELD FieldName="DEFAULTDEPTID" DisplayLabel="DEFAULTDEPTID" FieldType="String" FieldClass="TField"/>
+<FIELD FieldName="Name" DisplayLabel="Name" FieldType="String" FieldClass="TField"/>
+<FIELD FieldName="PIN" DisplayLabel="PIN" FieldType="String" FieldClass="TField"/>
+<FIELD FieldName="CHECKTIME" DisplayLabel="CHECKTIME" FieldType="DateTime" FieldClass="TField"/>
+<FIELD FieldName="SENSORID" DisplayLabel="SENSORID" FieldType="String" FieldClass="TField"/>
+<FIELD FieldName="SSN" DisplayLabel="SSN" FieldType="String" FieldClass="TField"/>
+<FIELD FieldName="verifycode" DisplayLabel="verifycode" FieldType="String" FieldClass="TField"/>
+<FIELD FieldName="CardNo" DisplayLabel="CardNo" FieldType="String" FieldClass="TField"/>
+</FIELDS>
+</METADATA>
+<ROWDATA>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Osama" PIN="1" CHECKTIME="23/10/2024 8:40 am" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Osama" PIN="1" CHECKTIME="23/10/2024 8:40 am" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Osama" PIN="1" CHECKTIME="23/10/2024 8:40 am" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Osama" PIN="1" CHECKTIME="23/10/2024 8:33 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Osama" PIN="1" CHECKTIME="23/10/2024 8:37 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Osama" PIN="1" CHECKTIME="23/10/2024 8:37 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Osama" PIN="1" CHECKTIME="24/10/2024 3:26 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Osama" PIN="1" CHECKTIME="24/10/2024 3:26 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Osama" PIN="1" CHECKTIME="24/10/2024 3:29 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Osama" PIN="1" CHECKTIME="24/10/2024 3:38 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Osama" PIN="1" CHECKTIME="24/10/2024 3:43 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Osama" PIN="1" CHECKTIME="24/10/2024 3:43 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Osama" PIN="1" CHECKTIME="24/10/2024 3:44 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Osama" PIN="1" CHECKTIME="03/11/2024 1:43 am" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Osama" PIN="1" CHECKTIME="12/11/2024 5:32 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Wmj" PIN="2" CHECKTIME="23/10/2024 8:37 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Wmj" PIN="2" CHECKTIME="23/10/2024 8:37 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="Wmj" PIN="2" CHECKTIME="23/10/2024 8:37 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="osama bittar" PIN="3" CHECKTIME="12/11/2024 5:35 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+<ROW DEFAULTDEPTID="OUR COMPANY" Name="osama bittar" PIN="3" CHECKTIME="12/11/2024 6:09 pm" SENSORID="1" SSN="" verifycode="FP" CardNo=""/>
+</ROWDATA>
+</DATAPACKET>

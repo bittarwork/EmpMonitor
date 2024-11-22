@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const employeeSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    fingerprint: { type: String, required: true },
+    fingerprint: { type: String, required: true, unique: true },
     image: { type: String },
     contractStartDate: { type: Date, required: true },
     contractEndDate: { type: Date, required: true },
@@ -14,13 +14,9 @@ const employeeSchema = new mongoose.Schema({
         enum: ['active', 'expired'],
         default: 'active'
     },
-    mockAttendances: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MockAttendance' }],
+    mockAttendances: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Attendance' }],
     withdrawals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Withdrawal' }]
 });
-
-employeeSchema.methods.calculateWeeklySalary = function (hoursWorked, totalWithdrawals) {
-    return (hoursWorked * this.hourlyRate) - totalWithdrawals;
-};
 
 const Employee = mongoose.model('Employee', employeeSchema);
 
