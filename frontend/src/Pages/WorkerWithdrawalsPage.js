@@ -60,51 +60,38 @@ const WorkerWithdrawalsPage = () => {
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        console.log(e);
         if (selectedWithdrawal) {
             // تحديث السحب الموجود
             try {
-
-                // التأكد من أن جميع الحقول المطلوبة موجودة
-                const updatedData = {
-                    material: newWithdrawal.material, // تأكد من وجود المادة
-                    quantity: newWithdrawal.quantity, // تأكد من وجود الكمية
-                    note: newWithdrawal.note, // تأكد من وجود الملاحظة
-                };
-
                 const response = await axios.put(
                     `${process.env.REACT_APP_API_URL}/withdrawals/${selectedWithdrawal.withdrawalId}`,
-                    updatedData // أرسل البيانات المحدثة
+                    newWithdrawal
                 );
-
-                setSuccessMessage('تم تحديث السحب بنجاح');
+                setSuccessMessage('Withdrawal updated successfully');
                 setError(null);
 
-                // تحديث قائمة السحوبات
-                setWithdrawals((prev) =>
-                    prev.map((employeeWithdrawals) =>
-                        employeeWithdrawals.employeeId === response.data.withdrawal.employeeId
-                            ? {
-                                ...employeeWithdrawals,
-                                withdrawals: employeeWithdrawals.withdrawals.map(w =>
-                                    w.withdrawalId === selectedWithdrawal.withdrawalId
-                                        ? response.data.withdrawal // استخدم البيانات المحدثة من الاستجابة
-                                        : w
-                                )
-                            }
-                            : employeeWithdrawals
-                    )
-                );
+                setWithdrawals((prev) => prev.map((ew) =>
+                    ew.employeeId === response.data.withdrawal.employee ? {
+                        ...ew,
+                        withdrawals: ew.withdrawals.map(w =>
+                            w.withdrawalId === selectedWithdrawal.withdrawalId
+                                ? response.data.withdrawal
+                                : w
+                        )
+                    } : ew
+                ));
 
-                resetForm(); // إعادة تعيين النموذج بعد التحديث
+                setNewWithdrawal({ employee: '', material: '', quantity: 1, note: '' });
+                setSelectedWithdrawal(null);
             } catch (err) {
-                setError('خطأ في تحديث السحب: ' + (err.response ? err.response.data.message : err.message));
+                setError('Error updating withdrawal');
             }
         } else {
             // إضافة سحب جديد
             try {
                 const response = await axios.post(`${process.env.REACT_APP_API_URL}/withdrawals`, newWithdrawal);
-                setSuccessMessage('تم إضافة السحب بنجاح');
+                setSuccessMessage('Withdrawal added successfully');
                 setError(null);
 
                 const existingWithdrawalIndex = withdrawals.findIndex(
@@ -125,14 +112,12 @@ const WorkerWithdrawalsPage = () => {
                     setWithdrawals((prev) => [...prev, newEmployeeWithdrawals]);
                 }
 
-                resetForm(); // إعادة تعيين النموذج بعد الإضافة
+                setNewWithdrawal({ employee: '', material: '', quantity: 1, note: '' });
             } catch (err) {
-                setError('خطأ في إضافة السحب: ' + (err.response ? err.response.data.message : err.message));
+                setError('Error adding withdrawal');
             }
         }
     };
-
-
 
     const resetForm = () => {
         setNewWithdrawal({ employee: '', material: '', quantity: 1, note: '' });
