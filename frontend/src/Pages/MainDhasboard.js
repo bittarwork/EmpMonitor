@@ -18,13 +18,6 @@ const EmployeePage = () => {
         fetchEmployees();
     }, [fetchEmployees]);
 
-    const isContractEndingSoon = (contractEndDate) => {
-        const endDate = new Date(contractEndDate);
-        const today = new Date();
-        const timeDiff = endDate - today;
-        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-        return daysDiff <= 7 && daysDiff >= 0;
-    };
 
     const getContractStatus = (contractEndDate) => {
         const endDate = new Date(contractEndDate);
@@ -34,7 +27,7 @@ const EmployeePage = () => {
 
         if (daysDiff < 0) {
             return <span className="text-red-500">❎ العقد منتهي</span>;
-        } else if (daysDiff <= 7) {
+        } else if (daysDiff <= 2) {
             return <span className="text-yellow-500">⏰ العقد سينتهي قريباً</span>;
         } else {
             return <span className="text-green-500">✅ العقد ساري</span>;

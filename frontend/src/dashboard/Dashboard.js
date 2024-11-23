@@ -13,7 +13,7 @@ const DashboardPage = () => {
     return (
         <div className="flex h-screen">
             <Routes>
-                <Route path="/" element={<MainDhasboard />} /> {/* المسار الافتراضي */}
+                <Route path="/" element={<MainDhasboard />} />
                 <Route path="/employees" element={<ActiveEmployeesPage />} />
                 <Route path="/inactive-employees" element={<InactiveEmployeesPage />} />
                 <Route path="/employee-cards" element={<EmployeeCardsPage />} />
