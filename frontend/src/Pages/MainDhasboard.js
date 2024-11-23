@@ -18,41 +18,45 @@ const EmployeePage = () => {
         fetchEmployees();
     }, [fetchEmployees]);
 
-    // دالة لحساب إذا كان عقد الموظف سينتهي قريباً
     const isContractEndingSoon = (contractEndDate) => {
         const endDate = new Date(contractEndDate);
         const today = new Date();
         const timeDiff = endDate - today;
         const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-        return daysDiff <= 1 && daysDiff >= 0;
+        return daysDiff <= 7 && daysDiff >= 0;
     };
 
-    // دالة لاستخراج وقت الدخول والخروج لهذا اليوم
+    const getContractStatus = (contractEndDate) => {
+        const endDate = new Date(contractEndDate);
+        const today = new Date();
+        const timeDiff = endDate - today;
+        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+        if (daysDiff < 0) {
+            return <span className="text-red-500">❎ العقد منتهي</span>;
+        } else if (daysDiff <= 7) {
+            return <span className="text-yellow-500">⏰ العقد سينتهي قريباً</span>;
+        } else {
+            return <span className="text-green-500">✅ العقد ساري</span>;
+        }
+    };
+
     const getTodayAttendance = (attendances) => {
-        const today = new Date().toISOString().split('T')[0]; // الحصول على التاريخ اليوم بصيغة "YYYY-MM-DD"
+        const today = new Date().toISOString().split('T')[0];
 
-        // فلترة الحضور لتحديد الحضور الذي يطابق تاريخ اليوم فقط
         const todaysAttendances = attendances.filter((attendance) => {
-            // التحقق من وجود تاريخ صحيح في البيانات
-            if (!attendance.checkTime) return false; // إذا لم يوجد تاريخ، يتم تجاهل السجل
+            if (!attendance.checkTime) return false;
             const attendanceDate = new Date(attendance.checkTime);
-
-            // إذا كان التاريخ غير صالح، يتم تجاهل السجل
             if (isNaN(attendanceDate.getTime())) return false;
-
-            // مقارنة التاريخ مع اليوم
             return attendanceDate.toISOString().split('T')[0] === today;
         });
 
-        // إذا كان هناك سجلات حضور لهذا اليوم
         if (todaysAttendances.length > 0) {
-            // ترتيب الحضور حسب الوقت (من الأقدم إلى الأحدث)
             todaysAttendances.sort((a, b) => new Date(a.checkTime) - new Date(b.checkTime));
 
-            const checkInTime = todaysAttendances[0].checkTime; // أول حضور كدخول
-            const checkOutTime = todaysAttendances[todaysAttendances.length - 1].checkTime; // آخر حضور كخروج
+            const checkInTime = todaysAttendances[0].checkTime;
+            const checkOutTime = todaysAttendances[todaysAttendances.length - 1].checkTime;
 
-            // إذا كان هناك فرق في الحضور
             return {
                 checkInTime: checkInTime ? new Date(checkInTime).toLocaleTimeString() : 'لم يتم الدخول',
                 checkOutTime: checkOutTime ? new Date(checkOutTime).toLocaleTimeString() : 'لم يتم الخروج'
@@ -62,10 +66,13 @@ const EmployeePage = () => {
         return { checkInTime: 'اليوم لم يتم الدخول', checkOutTime: 'اليوم لم يتم الخروج' };
     };
 
+    const filteredEmployees = employees.filter(employee => {
+        const { checkInTime, checkOutTime } = getTodayAttendance(employee.mockAttendances);
 
-    const filteredEmployees = employees.filter(employee =>
-        `${employee.firstName} ${employee.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+        // عرض الموظف فقط إذا كان قد سجل الدخول أو الخروج اليوم
+        return (checkInTime !== 'اليوم لم يتم الدخول' || checkOutTime !== 'اليوم لم يتم الخروج') &&
+            `${employee.firstName} ${employee.lastName}`.toLowerCase().includes(searchTerm.toLowerCase());
+    });
 
     const openModal = (employee) => {
         setSelectedEmployee(employee);
@@ -123,16 +130,10 @@ const EmployeePage = () => {
                                 const { checkInTime, checkOutTime } = getTodayAttendance(employee.mockAttendances);
 
                                 return (
-                                    <tr key={employee._id} className="hover:bg-blue-100 transition duration-200 cursor-pointer" onClick={() => openModal(employee)}>
+                                    <tr key={employee.id} className="hover:bg-blue-100 transition duration-200 cursor-pointer" onClick={() => openModal(employee)}>
                                         <td className="border-b text-right px-4 py-4 text-gray-700">{`${employee.firstName} ${employee.lastName}`}</td>
                                         <td className="border-b text-right px-4 py-4 text-gray-700 flex items-center">
-                                            {isContractEndingSoon(employee.contractEndDate) ? (
-                                                <span className="text-red-500 flex items-center">
-                                                    ⚠️ عقد ينتهي خلال يومين
-                                                </span>
-                                            ) : (
-                                                <span className="text-green-500">✅ العقد ساري</span>
-                                            )}
+                                            {getContractStatus(employee.contractEndDate)}
                                         </td>
                                         <td className="border-b px-4 py-4 text-gray-700">{checkInTime}</td>
                                         <td className="border-b px-4 py-4 text-gray-700">{checkOutTime}</td>
@@ -146,7 +147,7 @@ const EmployeePage = () => {
 
             <EmployeeModal
                 isOpen={isModalOpen}
-                onRequestClose={closeModal}
+                closeModal={closeModal}
                 employee={selectedEmployee}
             />
         </div>

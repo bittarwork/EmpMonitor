@@ -9,7 +9,7 @@ const InactiveEmployeesPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
-        fetchEmployees(); // تحميل البيانات عند تحميل الصفحة
+        fetchEmployees();
     }, [fetchEmployees]);
 
     const handleSearch = (event) => {
@@ -26,21 +26,25 @@ const InactiveEmployeesPage = () => {
         setSelectedEmployee(null);
     };
 
-    const isContractExpired = (contractEndDate) => {
+    // تعديل منطق التحقق من حالة العقد ليعرض الموظفين الذين انتهت عقودهم فقط
+    const isContractEnded = (contractEndDate) => {
         const endDate = new Date(contractEndDate);
         const today = new Date();
+
+        // إذا كان تاريخ انتهاء العقد أقل من تاريخ اليوم، العقد انتهى
         return endDate < today;
     };
 
+    // تصفية الموظفين الذين انتهت عقودهم
     const inactiveEmployees = employees.filter(employee => {
-        const hasExpiredContract = isContractExpired(employee.contractEndDate);
+        const isInactive = isContractEnded(employee.contractEndDate);
         const isMatchingSearch = `${employee.firstName} ${employee.lastName}`.toLowerCase().includes(searchTerm.toLowerCase());
-        return hasExpiredContract && isMatchingSearch;
+        return isInactive && isMatchingSearch;
     });
 
     return (
         <div className="flex flex-col flex-grow pb-10 px-4" dir='rtl'>
-            <h1 className="text-4xl font-bold mb-6 text-gray-800 text-center">موظفون غير نشطين</h1>
+            <h1 className="text-4xl font-bold mb-6 text-gray-800 text-center">الموظفون المتوقفون</h1>
 
             {/* عرض الخطأ إذا كان موجوداً */}
             {error && <div className="text-red-500 text-center mb-4">{error}</div>}
@@ -56,7 +60,7 @@ const InactiveEmployeesPage = () => {
                 />
             </div>
 
-            {/* جدول الموظفين غير النشطين */}
+            {/* جدول الموظفين المتوقفين */}
             {loading ? (
                 <div className="text-center text-gray-700 text-lg">جاري التحميل...</div>
             ) : (
@@ -64,23 +68,31 @@ const InactiveEmployeesPage = () => {
                     <table className="min-w-full bg-white rounded-md shadow-md">
                         <thead className="bg-red-300">
                             <tr>
-                                <th className="border-b px-4 py-4 text-left text-gray-600 sticky top-0">اسم الموظف</th>
-                                <th className="border-b px-4 py-4 text-left text-gray-600 sticky top-0">تاريخ انتهاء العقد</th>
-                                <th className="border-b px-4 py-4 text-left text-gray-600 sticky top-0">صورة</th>
+                                <th className="border-b px-4 py-4 text-right text-gray-600 sticky top-0">اسم الموظف</th>
+                                <th className="border-b px-4 py-4 text-right text-gray-600 sticky top-0">حالة العامل</th>
+                                <th className="border-b px-4 py-4 text-right text-gray-600 sticky top-0">تاريخ انتهاء العقد</th>
+                                <th className="border-b px-4 py-4 text-right text-gray-600 sticky top-0">صورة</th>
                             </tr>
                         </thead>
                         <tbody>
                             {inactiveEmployees.map((employee) => (
                                 <tr
                                     key={employee.id}
-                                    className="hover:bg-red-100 transition duration-200 cursor-pointer"
+                                    className="hover:bg-red-100 text-right transition duration-200 cursor-pointer"
                                     onClick={() => openModal(employee)}
                                 >
                                     <td className="border-b px-4 py-4 text-gray-700">{`${employee.firstName} ${employee.lastName}`}</td>
-                                    <td className="border-b px-4 py-4 text-gray-700">{new Date(employee.contractEndDate).toLocaleDateString()}</td>
                                     <td className="border-b px-4 py-4 text-gray-700">
+                                        {isContractEnded(employee.contractEndDate) ? (
+                                            <span className="text-red-500">❎ العقد منتهي</span>
+                                        ) : (
+                                            <span className="text-green-500">✅ العقد ساري</span>
+                                        )}
+                                    </td>
+                                    <td className="border-b px-4 py-4 text-gray-700">{new Date(employee.contractEndDate).toLocaleDateString()}</td>
+                                    <td className="border-b px-4 py-4 text-gray-700 flex">
                                         {employee.image && (
-                                            <img src={employee.image} alt={`${employee.firstName} ${employee.lastName}`} className="w-16 h-16 rounded-full" />
+                                            <img src={employee.image} alt={`${employee.firstName} ${employee.lastName}`} className="w-16 h-16 rounded-full justify-end" />
                                         )}
                                     </td>
                                 </tr>

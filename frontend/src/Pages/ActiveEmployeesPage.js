@@ -26,16 +26,22 @@ const ActiveEmployeesPage = () => {
         setSelectedEmployee(null);
     };
 
-    const isContractEndingSoon = (contractEndDate) => {
+    // تعديل منطق التحقق من حالة العقد
+    const isContractActive = (contractEndDate) => {
         const endDate = new Date(contractEndDate);
         const today = new Date();
-        const timeDiff = endDate - today;
-        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-        return daysDiff >= 0 && daysDiff <= 2;
+
+        // إذا كان تاريخ انتهاء العقد أكبر من اليوم أو اليوم نفسه، العقد ساري
+        if (endDate >= today) {
+            return true;
+        }
+        // إذا كان العقد انتهى قبل يومين أو أكثر، العقد انتهى
+        return false;
     };
 
+    // تصفية الموظفين الذين عقودهم سارية أو على وشك الانتهاء
     const activeEmployees = employees.filter(employee => {
-        const isActive = !isContractEndingSoon(employee.contractEndDate);
+        const isActive = isContractActive(employee.contractEndDate);
         const isMatchingSearch = `${employee.firstName} ${employee.lastName}`.toLowerCase().includes(searchTerm.toLowerCase());
         return isActive && isMatchingSearch;
     });
@@ -81,12 +87,10 @@ const ActiveEmployeesPage = () => {
                                 >
                                     <td className="border-b px-4 py-4 text-gray-700">{`${employee.firstName} ${employee.lastName}`}</td>
                                     <td className="border-b px-4 py-4 text-gray-700">
-                                        {isContractEndingSoon(employee.contractEndDate) ? (
-                                            <span className="text-red-500 flex items-center">
-                                                ⚠️ عقد ينتهي خلال يومين
-                                            </span>
-                                        ) : (
+                                        {isContractActive(employee.contractEndDate) ? (
                                             <span className="text-green-500">✅ العقد ساري</span>
+                                        ) : (
+                                            <span className="text-red-500">❎ العقد منتهي</span>
                                         )}
                                     </td>
                                     <td className="border-b px-4 py-4 text-gray-700">{new Date(employee.contractEndDate).toLocaleDateString()}</td>
@@ -102,6 +106,7 @@ const ActiveEmployeesPage = () => {
                 </div>
             )}
 
+            {/* عرض Modal عند فتحه */}
             <EmployeeModal
                 isOpen={isModalOpen}
                 onRequestClose={closeModal}

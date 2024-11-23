@@ -6,7 +6,8 @@ import EmployeeCardsPage from '../Pages/EmployeeCardsPage';
 import MaterialsPage from '../Pages/MaterialsPage';
 import WorkerWithdrawalsPage from '../Pages/WorkerWithdrawalsPage';
 import SalariesPage from '../Pages/SalariesPage';
-import MainDhasboard from '../Pages/MainDhasboard'; // استيراد صفحة الترحيب
+import MainDhasboard from '../Pages/MainDhasboard';
+import Statistics from '../Pages/Statistics';
 
 const DashboardPage = () => {
     return (
@@ -19,6 +20,7 @@ const DashboardPage = () => {
                 <Route path="/materials" element={<MaterialsPage />} />
                 <Route path="/worker-withdrawals" element={<WorkerWithdrawalsPage />} />
                 <Route path="/salaries" element={<SalariesPage />} />
+                <Route path="/statistics" element={<Statistics />} />
             </Routes>
         </div>
     );

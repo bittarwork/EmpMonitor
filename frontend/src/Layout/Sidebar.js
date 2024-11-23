@@ -4,25 +4,24 @@ import { UserContext } from '../Context/UserContext';
 
 const Sidebar = () => {
     const { user } = useContext(UserContext);
-    const [isOpen, setIsOpen] = useState(true); // حالة للتحكم في فتح/إغلاق الـ Sidebar
+    const [isOpen, setIsOpen] = useState(true);
 
     const toggleSidebar = () => {
-        setIsOpen(!isOpen); // تغيير الحالة عند النقر على زر التبديل
+        setIsOpen(!isOpen);
     };
 
     if (!user) {
-        return null; // لا يظهر الـ Sidebar إذا لم يكن هناك مستخدم
+        return null;
     }
 
     return (
         <div className={`bg-gray-800 text-white ${isOpen ? 'w-64' : 'w-16'} transition-all duration-300`}>
-            {/* زر الـ Toggle */}
             <button
                 onClick={toggleSidebar}
                 className="bg-gray-700 p-2 rounded-md m-4 text-center"
                 title="Toggle Sidebar"
             >
-                {isOpen ? '◀' : '▶'} {/* تبديل الرمز حسب حالة الـ Sidebar */}
+                {isOpen ? '◀' : '▶'}
             </button>
 
             <nav className={`flex flex-col ${isOpen ? 'space-y-4' : 'space-y-2'} p-4`}>
@@ -46,6 +45,9 @@ const Sidebar = () => {
                 </Link>
                 <Link to="/dashboard/salaries" className="flex items-center text-lg hover:bg-gray-700 p-2 rounded">
                     💰 {isOpen && <span className="ml-2">الرواتب والأجور</span>}
+                </Link>
+                <Link to="/dashboard/statistics" className="flex items-center text-lg hover:bg-gray-700 p-2 rounded">
+                    📈 {isOpen && <span className="ml-2">الاحصائيات العامة</span>}
                 </Link>
             </nav>
         </div>
