@@ -87,7 +87,7 @@ exports.updateEmployee = async (req, res) => {
                 { firstName, lastName },
                 { fingerprint }
             ],
-            _id: { $ne: employeeId } // استثناء الموظف الحالي
+            _id: { $ne: employeeId }
         });
 
         if (existingEmployee) {
@@ -96,21 +96,10 @@ exports.updateEmployee = async (req, res) => {
             });
         }
 
-        // الحصول على التاريخ الحالي
-        const currentDate = new Date();
-        // ضبط تاريخ بداية العقد
-        const startDate = new Date(contractStartDate);
-
-        // التحقق من أن تاريخ بداية العقد هو إما اليوم أو لا يتجاوز 15 يوم من اليوم
-        if (startDate < currentDate || startDate > new Date(currentDate.setDate(currentDate.getDate() + 15))) {
-            return res.status(400).json({ message: 'تاريخ بداية العقد يجب أن يكون اليوم أو خلال 15 يومًا من اليوم الحالي.' });
-        }
-
         // تحديث بيانات الموظف
         employee.firstName = firstName || employee.firstName;
         employee.lastName = lastName || employee.lastName;
         employee.fingerprint = fingerprint || employee.fingerprint;
-        employee.image = image || employee.image;
         employee.contractStartDate = contractStartDate || employee.contractStartDate;
         employee.contractEndDate = contractEndDate || employee.contractEndDate;
         employee.hourlyRate = hourlyRate || employee.hourlyRate;

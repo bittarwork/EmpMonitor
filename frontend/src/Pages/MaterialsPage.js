@@ -106,8 +106,8 @@ const MaterialsPage = () => {
                         {filteredMaterials.map((material) => (
                             <tr key={material._id} className="hover:bg-blue-100 transition duration-200">
                                 <td className="border-b px-6 py-4 font-semibold">{material.name}</td>
-                                <td className="border-b px-6 py-4">${material.price}</td>
-                                <td className="border-b px-6 py-4">{material.quantity}</td>
+                                <td className="border-b px-6 py-4">{material.price} ل.س</td>
+                                <td className="border-b px-6 py-4">{material.quantity} قطعة</td>
                                 <td className="border-b px-6 py-4">
                                     <button
                                         onClick={() => handleEditClick(material)}

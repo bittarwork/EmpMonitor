@@ -175,10 +175,9 @@ const WorkerWithdrawalsPage = () => {
     if (loading) return <div className="text-center text-lg">جاري التحميل...</div>;
 
     return (
-        <div className="min-w-full mx-auto p-6 " dir="rtl">
+        <div className="min-w-full mx-auto overflow-auto" dir="rtl">
             <h1 className="text-2xl font-bold mb-4 text-center">السحوبات</h1>
             {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
-            {successMessage && <div className="bg-green-100 text-green-700 p-3 rounded mb-4">{successMessage}</div>}
 
             <div className="flex items-center gap-x-2 mb-4">
                 <input
@@ -205,7 +204,6 @@ const WorkerWithdrawalsPage = () => {
                 employees={employees}
                 materials={materials}
             />
-
             {filteredWithdrawals.length === 0 ? (
                 <p className="text-center">لا توجد سحوبات لهذا الموظف.</p>
             ) : (
