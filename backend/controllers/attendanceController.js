@@ -2,8 +2,7 @@ const fs = require('fs');
 const xml2js = require('xml2js');
 const Employee = require('../models/Employee');
 const Attendance = require('../models/Attendance');
-
-// رفع ومعالجة ملف الحضور
+const moment = require('moment');
 const uploadAttendance = async (req, res) => {
     try {
         if (!req.file) {
@@ -25,25 +24,21 @@ const uploadAttendance = async (req, res) => {
         let addedRecordsCount = 0;
 
         for (const row of attendanceRecords) {
-            // الوصول إلى القيم من الخاصية `$`
             const { Name, PIN, CHECKTIME } = row.$ || {};
 
-            console.log(`Processing row:`, { Name, PIN, CHECKTIME });
-
             if (!PIN) {
-                console.warn(`Missing PIN in row:`, row);
                 continue;
             }
 
-            const employee = await Employee.findOne({ fingerprint: PIN });
+            const employee = await Employee.findOne({ fingerprint: String(PIN).trim() });
             if (!employee) {
-                console.warn(`Employee not found for PIN: ${PIN}`);
                 continue;
             }
 
-            const checkTime = new Date(CHECKTIME);
+            // Convert the CHECKTIME to a valid date format
+            const checkTime = moment(CHECKTIME, 'DD/MM/YYYY h:mm a').toDate();
+
             if (isNaN(checkTime.getTime())) {
-                console.error(`Invalid date format for CHECKTIME: ${CHECKTIME}`);
                 continue;
             }
 
@@ -61,9 +56,6 @@ const uploadAttendance = async (req, res) => {
 
                 await attendance.save();
                 addedRecordsCount++;
-                console.log(`Attendance saved for employee: ${employee.firstName} ${employee.lastName}`);
-            } else {
-                console.log(`Attendance already exists for employee: ${employee.firstName} ${employee.lastName} at ${CHECKTIME}`);
             }
         }
 

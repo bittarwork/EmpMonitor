@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { EmployeeContext } from '../Context/employeeContext';
-
-import EmployeeModal from '../models/EmployeeModal'; // استيراد مكون المودال
+import EmployeeModal from '../models/EmployeeModal';
 
 const EmployeePage = () => {
     const {
@@ -16,24 +15,53 @@ const EmployeePage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
-        fetchEmployees(); // تحميل البيانات عند تحميل الصفحة
+        fetchEmployees();
     }, [fetchEmployees]);
 
-    const handleSortByName = () => {
-
-    };
-
-
+    // دالة لحساب إذا كان عقد الموظف سينتهي قريباً
     const isContractEndingSoon = (contractEndDate) => {
         const endDate = new Date(contractEndDate);
         const today = new Date();
         const timeDiff = endDate - today;
         const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-        return daysDiff <= 2 && daysDiff >= 0;
+        return daysDiff <= 1 && daysDiff >= 0;
     };
 
-    // const totalEmployees = employees.length;
-    // const expiringContracts = employees.filter(employee => isContractEndingSoon(employee.contractEndDate)).length;
+    // دالة لاستخراج وقت الدخول والخروج لهذا اليوم
+    const getTodayAttendance = (attendances) => {
+        const today = new Date().toISOString().split('T')[0]; // الحصول على التاريخ اليوم بصيغة "YYYY-MM-DD"
+
+        // فلترة الحضور لتحديد الحضور الذي يطابق تاريخ اليوم فقط
+        const todaysAttendances = attendances.filter((attendance) => {
+            // التحقق من وجود تاريخ صحيح في البيانات
+            if (!attendance.checkTime) return false; // إذا لم يوجد تاريخ، يتم تجاهل السجل
+            const attendanceDate = new Date(attendance.checkTime);
+
+            // إذا كان التاريخ غير صالح، يتم تجاهل السجل
+            if (isNaN(attendanceDate.getTime())) return false;
+
+            // مقارنة التاريخ مع اليوم
+            return attendanceDate.toISOString().split('T')[0] === today;
+        });
+
+        // إذا كان هناك سجلات حضور لهذا اليوم
+        if (todaysAttendances.length > 0) {
+            // ترتيب الحضور حسب الوقت (من الأقدم إلى الأحدث)
+            todaysAttendances.sort((a, b) => new Date(a.checkTime) - new Date(b.checkTime));
+
+            const checkInTime = todaysAttendances[0].checkTime; // أول حضور كدخول
+            const checkOutTime = todaysAttendances[todaysAttendances.length - 1].checkTime; // آخر حضور كخروج
+
+            // إذا كان هناك فرق في الحضور
+            return {
+                checkInTime: checkInTime ? new Date(checkInTime).toLocaleTimeString() : 'لم يتم الدخول',
+                checkOutTime: checkOutTime ? new Date(checkOutTime).toLocaleTimeString() : 'لم يتم الخروج'
+            };
+        }
+
+        return { checkInTime: 'اليوم لم يتم الدخول', checkOutTime: 'اليوم لم يتم الخروج' };
+    };
+
 
     const filteredEmployees = employees.filter(employee =>
         `${employee.firstName} ${employee.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
@@ -53,7 +81,6 @@ const EmployeePage = () => {
         <div className="flex flex-col flex-grow pb-10 px-4" dir='rtl'>
             <h1 className="text-4xl font-bold mb-6 text-gray-800 text-center">إدارة الموظفين</h1>
 
-            {/* عرض الخطأ إذا كان موجوداً */}
             {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
             <div className="flex flex-col md:flex-row justify-between items-center mb-6">
@@ -71,26 +98,12 @@ const EmployeePage = () => {
                         تحديث
                     </button>
                     <button
-                        onClick={handleSortByName}
+                        onClick={() => { }}
                         className="bg-blue-500 text-white px-5 py-3 rounded-md hover:bg-blue-600 transition duration-300 shadow-md">
                         فرز حسب الاسم
                     </button>
                 </div>
             </div>
-
-            {/* <div className="bg-white p-6 rounded-md shadow-md mb-6">
-                <h2 className="text-2xl font-bold text-gray-700 mb-4">تحليلات الموظفين</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="bg-gray-50 p-4 rounded-md shadow">
-                        <h3 className="text-lg font-semibold text-gray-700">إجمالي الموظفين</h3>
-                        <p className="text-xl font-bold text-gray-900">{totalEmployees}</p>
-                    </div>
-                    <div className="bg-gray-50 p-4 rounded-md shadow">
-                        <h3 className="text-lg font-semibold text-gray-700">عقود تنتهي قريباً</h3>
-                        <p className="text-xl font-bold text-gray-900">{expiringContracts}</p>
-                    </div>
-                </div>
-            </div> */}
 
             {loading ? (
                 <div className="text-center text-gray-700 text-lg">جاري التحميل...</div>
@@ -106,36 +119,31 @@ const EmployeePage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredEmployees.map((employee) => (
-                                <tr key={employee._id} className="hover:bg-blue-100 transition duration-200 cursor-pointer" onClick={() => openModal(employee)}>
-                                    <td className="border-b text-right px-4 py-4 text-gray-700">{`${employee.firstName} ${employee.lastName}`}</td>
-                                    <td className="border-b text-right px-4 py-4 text-gray-700 flex items-center">
-                                        {isContractEndingSoon(employee.contractEndDate) ? (
-                                            <span className="text-red-500 flex items-center">
-                                                ⚠️ عقد ينتهي خلال يومين
-                                            </span>
-                                        ) : (
-                                            <span className="text-green-500">✅ العقد ساري</span>
-                                        )}
-                                    </td>
-                                    <td className="border-b px-4 py-4 text-gray-700">
-                                        {employee.mockAttendances.length > 0
-                                            ? employee.mockAttendances[0].checkInTime
-                                            : 'لم يتم الدخول'}
-                                    </td>
-                                    <td className="border-b px-4 py-4 text-gray-700">
-                                        {employee.mockAttendances.length > 0
-                                            ? employee.mockAttendances[0].checkOutTime
-                                            : 'لم يتم الخروج'}
-                                    </td>
-                                </tr>
-                            ))}
+                            {filteredEmployees.map((employee) => {
+                                const { checkInTime, checkOutTime } = getTodayAttendance(employee.mockAttendances);
+
+                                return (
+                                    <tr key={employee._id} className="hover:bg-blue-100 transition duration-200 cursor-pointer" onClick={() => openModal(employee)}>
+                                        <td className="border-b text-right px-4 py-4 text-gray-700">{`${employee.firstName} ${employee.lastName}`}</td>
+                                        <td className="border-b text-right px-4 py-4 text-gray-700 flex items-center">
+                                            {isContractEndingSoon(employee.contractEndDate) ? (
+                                                <span className="text-red-500 flex items-center">
+                                                    ⚠️ عقد ينتهي خلال يومين
+                                                </span>
+                                            ) : (
+                                                <span className="text-green-500">✅ العقد ساري</span>
+                                            )}
+                                        </td>
+                                        <td className="border-b px-4 py-4 text-gray-700">{checkInTime}</td>
+                                        <td className="border-b px-4 py-4 text-gray-700">{checkOutTime}</td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
             )}
 
-            {/* عرض المودال عند فتحه */}
             <EmployeeModal
                 isOpen={isModalOpen}
                 onRequestClose={closeModal}

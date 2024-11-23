@@ -31,7 +31,7 @@ const ActiveEmployeesPage = () => {
         const today = new Date();
         const timeDiff = endDate - today;
         const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-        return daysDiff <= 2 && daysDiff >= 0;
+        return daysDiff >= 0 && daysDiff <= 2;
     };
 
     const activeEmployees = employees.filter(employee => {
@@ -102,7 +102,6 @@ const ActiveEmployeesPage = () => {
                 </div>
             )}
 
-            {/* عرض Modal عند فتحه */}
             <EmployeeModal
                 isOpen={isModalOpen}
                 onRequestClose={closeModal}
