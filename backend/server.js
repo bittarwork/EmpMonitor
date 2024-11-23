@@ -9,6 +9,8 @@ const withdrawalRoutes = require('./routes/withdrawalRoutes');
 const userRoutes = require('./routes/userRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const scheduleAttendanceUpdate = require('./jobs/attendanceScheduler');
+const { scheduleWithdrawalsSynchronization } = require('./jobs/WithdrawalScheduler');
+
 
 const app = express();
 
@@ -66,6 +68,7 @@ app.use('/api/withdrawals', withdrawalRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/attendance', attendanceRoutes);
 scheduleAttendanceUpdate();
+scheduleWithdrawalsSynchronization();
 // إعداد اتصال قاعدة البيانات
 mongoose.connect('mongodb://localhost:27017/rqt-123')
     .then(() => console.log('✅ Connected to MongoDB'))

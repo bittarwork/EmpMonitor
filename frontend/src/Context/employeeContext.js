@@ -126,9 +126,6 @@ export const EmployeeProvider = ({ children }) => {
         }
     };
 
-
-
-
     // حذف موظف
     const deleteEmployee = async (id) => {
         dispatch({ type: ACTIONS.SET_LOADING });

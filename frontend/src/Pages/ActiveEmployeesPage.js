@@ -9,7 +9,7 @@ const ActiveEmployeesPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
-        fetchEmployees(); // تحميل البيانات عند تحميل الصفحة
+        fetchEmployees();
     }, [fetchEmployees]);
 
     const handleSearch = (event) => {
