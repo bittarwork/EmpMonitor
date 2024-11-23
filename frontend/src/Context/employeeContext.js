@@ -28,7 +28,7 @@ const employeeReducer = (state, action) => {
         case ACTIONS.UPDATE_EMPLOYEE:
             return {
                 ...state,
-                employees: state.employees.map(emp => emp._id === action.payload._id ? action.payload : emp),
+                employees: state.employees.map(emp => emp.id === action.payload.id ? action.payload : emp),
             };
         case ACTIONS.DELETE_EMPLOYEE:
             return { ...state, employees: state.employees.filter(emp => emp._id !== action.payload) };
@@ -120,7 +120,6 @@ export const EmployeeProvider = ({ children }) => {
             });
             dispatch({ type: ACTIONS.UPDATE_EMPLOYEE, payload: response.data.employee });
         } catch (err) {
-            // تأكد من أن الخطأ يحتوي على رسالة توضح السبب
             const errorMessage = err.response?.data?.message || err.message || 'حدث خطأ غير معروف';
             dispatch({ type: ACTIONS.SET_ERROR, payload: errorMessage });
         }

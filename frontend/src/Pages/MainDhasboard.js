@@ -84,14 +84,7 @@ const EmployeePage = () => {
             {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
             <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-                <div className="flex mt-4 md:mt-0 space-x-4 w-full">
-                    <input
-                        type="text"
-                        placeholder="بحث عن الموظف"
-                        className="border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 w-2/3 ml-2"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                <div className="flex mt-4 md:mt-0 w-full">
                     <button
                         onClick={fetchEmployees}
                         className="bg-blue-600 text-white px-5 py-3 rounded-md hover:bg-blue-700 transition duration-300 shadow-md">
@@ -99,9 +92,17 @@ const EmployeePage = () => {
                     </button>
                     <button
                         onClick={() => { }}
-                        className="bg-blue-500 text-white px-5 py-3 rounded-md hover:bg-blue-600 transition duration-300 shadow-md">
+                        className="bg-blue-500 mx-5 text-white px-5 py-3 rounded-md hover:bg-blue-600 transition duration-300 shadow-md">
                         فرز حسب الاسم
                     </button>
+                    <input
+                        type="text"
+                        placeholder="بحث عن الموظف"
+                        className="border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 w-2/3 ml-2"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+
                 </div>
             </div>
 

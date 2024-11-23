@@ -113,37 +113,41 @@ const EmployeeCardsPage = () => {
     );
 
     return (
-        <div className="flex flex-col flex-grow pb-10 px-4" dir='rtl'>
+        <div className="flex flex-col flex-grow pb-10 " dir='rtl'>
             <h1 className="text-4xl font-bold mb-6 text-gray-800 text-center">بطاقات الموظفين</h1>
+
+            {/* عرض الخطأ إذا كان موجوداً */}
             {error && <div className="text-red-500 text-center mb-4">{error}</div>}
-            <div className="flex gap-x-2 items-center mb-6">
+
+            <div className="flex mt-4 md:mt-0 w-full mb-6">
                 <button
                     onClick={() => openModal()}
-                    className="bg-blue-600 text-white px-5 py-3 rounded-md hover:bg-blue-700 transition duration-300 shadow-md">
+                    className="bg-blue-600 text-white px-5 py-3 rounded-md hover:bg-blue-700 transition duration-300 shadow-md"
+                >
                     إضافة موظف جديد
                 </button>
-                <div className="w-2/3">
-                    <input
-                        type="text"
-                        placeholder="بحث عن موظف..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 w-2/3 ml-2"
-                    />
-                </div>
+
+                <input
+                    type="text"
+                    placeholder="بحث عن موظف..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="border border-gray-300 mr-5 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 w-2/3 ml-2"
+                />
             </div>
 
             {loading ? (
                 <div className="text-center text-gray-700 text-lg">جاري التحميل...</div>
             ) : (
-                <div className="overflow-auto" style={{ maxHeight: '500px' }}>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div className="overflow-auto" >
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6">
                         {filteredEmployees.map((employee) => (
                             <EmployeeCard
                                 key={employee.id}
                                 employee={employee}
                                 onEdit={openModal}
                                 onDelete={handleDelete}
+                                className="transition-transform duration-300 transform hover:scale-105"
                             />
                         ))}
                     </div>
@@ -162,6 +166,7 @@ const EmployeeCardsPage = () => {
                 />
             )}
         </div>
+
     );
 };
 
