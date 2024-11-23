@@ -76,7 +76,7 @@ const EmployeeStatistics = () => {
     };
 
     return (
-        <div className="bg-gray-50 p-6 mb-10 rounded-lg shadow-lg">
+        <div className="bg-gray-50 p-6 mb-10 rounded-lg" dir="rtl">
             <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">إحصائيات الموظفين</h2>
 
             {/* Statistics Grid */}
