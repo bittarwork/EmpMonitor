@@ -10,6 +10,8 @@ const userRoutes = require('./routes/userRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const scheduleAttendanceUpdate = require('./jobs/attendanceScheduler');
 const { scheduleWithdrawalsSynchronization } = require('./jobs/WithdrawalScheduler');
+const { calculateSalaries } = require('./jobs/SalariesScheduler');
+
 
 
 const app = express();
@@ -69,6 +71,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/attendance', attendanceRoutes);
 scheduleAttendanceUpdate();
 scheduleWithdrawalsSynchronization();
+calculateSalaries();
 // إعداد اتصال قاعدة البيانات
 mongoose.connect(process.env.DB_URI || 'mongodb://localhost:27017/rqt-123')
     .then(() => console.log('✅ Connected to MongoDB'))
