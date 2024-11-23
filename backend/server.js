@@ -70,7 +70,7 @@ app.use('/api/attendance', attendanceRoutes);
 scheduleAttendanceUpdate();
 scheduleWithdrawalsSynchronization();
 // إعداد اتصال قاعدة البيانات
-mongoose.connect('mongodb://localhost:27017/rqt-123')
+mongoose.connect(process.env.DB_URI || 'mongodb://localhost:27017/rqt-123')
     .then(() => console.log('✅ Connected to MongoDB'))
     .catch(err => console.error('❌ Could not connect to MongoDB', err));
 
