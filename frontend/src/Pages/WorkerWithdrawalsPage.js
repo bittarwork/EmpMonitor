@@ -9,7 +9,6 @@ const WorkerWithdrawalsPage = () => {
     const [materials, setMaterials] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [successMessage, setSuccessMessage] = useState('');
     const [newWithdrawal, setNewWithdrawal] = useState({
         employee: '',
         material: '',
@@ -68,7 +67,6 @@ const WorkerWithdrawalsPage = () => {
                     `${process.env.REACT_APP_API_URL}/withdrawals/${selectedWithdrawal.withdrawalId}`,
                     newWithdrawal
                 );
-                setSuccessMessage('Withdrawal updated successfully');
                 setError(null);
 
                 setWithdrawals((prev) => prev.map((ew) =>
@@ -91,7 +89,6 @@ const WorkerWithdrawalsPage = () => {
             // إضافة سحب جديد
             try {
                 const response = await axios.post(`${process.env.REACT_APP_API_URL}/withdrawals`, newWithdrawal);
-                setSuccessMessage('Withdrawal added successfully');
                 setError(null);
 
                 const existingWithdrawalIndex = withdrawals.findIndex(
@@ -133,7 +130,6 @@ const WorkerWithdrawalsPage = () => {
 
         try {
             await axios.delete(`${process.env.REACT_APP_API_URL}/withdrawals/${withdrawalId}`);
-            setSuccessMessage('تم حذف السحب بنجاح');
             setError(null);
             setWithdrawals((prev) =>
                 prev.map(employeeWithdrawals => ({
@@ -154,7 +150,6 @@ const WorkerWithdrawalsPage = () => {
 
         try {
             await axios.delete(`${process.env.REACT_APP_API_URL}/withdrawals/employee/${employeeId}`);
-            setSuccessMessage('تم حذف جميع السحوبات لهذا الموظف');
             setError(null);
             setWithdrawals((prev) => prev.filter((ew) => ew.employeeId !== employeeId));
         } catch (err) {
@@ -210,7 +205,6 @@ const WorkerWithdrawalsPage = () => {
                 filteredWithdrawals.map((employeeWithdrawals) => (
                     <div key={employeeWithdrawals.employeeId} className="border p-4 mb-4 rounded-lg shadow-md bg-white">
                         <h2 className="text-xl font-semibold mb-2">الموظف: {getEmployeeName(employeeWithdrawals.employeeId)}</h2>
-                        <img></img>
                         <button
                             onClick={() => handleDeleteAllWithdrawals(employeeWithdrawals.employeeId)}
                             className="bg-red-500 hover:bg-red-600 text-white rounded-lg py-1 px-3 mb-3"
