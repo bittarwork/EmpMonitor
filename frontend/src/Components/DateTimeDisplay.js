@@ -26,7 +26,7 @@ const DateTimeDisplay = () => {
 
     return (
         <div className="flex items-center text-white">
-            <FaClock className="text-2xl text-yellow-500 mr-2" /> {/* أيقونة الساعة بلون أصفر */}
+            <FaClock className="text-2xl text-yellow-500 mr-2" />
             <div className="flex flex-col text-right">
                 <h2 className="text-lg font-bold">{formatTime(currentDateTime)}</h2>
                 <span className="text-sm">{formatDate(currentDateTime)}</span>

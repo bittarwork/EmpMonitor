@@ -88,7 +88,7 @@ export const UserProvider = ({ children }) => {
         setError(null);
         try {
             const response = await axios.put(`${process.env.REACT_APP_API_URL}/users/password/${id}`, passwordData);
-            return response.data; // العودة إلى الرسالة هنا
+            return response.data;
         } catch (err) {
             setError(err.response?.data?.message || 'Error updating password');
         } finally {

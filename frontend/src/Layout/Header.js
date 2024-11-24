@@ -5,7 +5,7 @@ import RegisterModal from '../models/RegisterModal';
 import LogoutModal from '../models/LogoutModal';
 import ProfileModal from '../models/ProfileModal';
 import DateTimeDisplay from '../Components/DateTimeDisplay';
-import FileUploadModal from '../models/FileUploadModal'; // Import the updated file upload modal
+import FileUploadModal from '../models/FileUploadModal';
 
 const Header = () => {
     const { user, logout } = useContext(UserContext);
@@ -13,16 +13,16 @@ const Header = () => {
     const [showRegisterModal, setShowRegisterModal] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showProfileModal, setShowProfileModal] = useState(false);
-    const [showUploadModal, setShowUploadModal] = useState(false); // State for file upload modal
+    const [showUploadModal, setShowUploadModal] = useState(false);
 
     const handleLogin = () => setShowLoginModal(true);
     const handleRegister = () => setShowRegisterModal(true);
     const handleLogout = () => setShowLogoutModal(true);
     const handleProfile = () => setShowProfileModal(true);
-    const handleUpload = () => setShowUploadModal(true); // Open file upload modal
+    const handleUpload = () => setShowUploadModal(true);
 
     const closeProfileModal = () => setShowProfileModal(false);
-    const closeUploadModal = () => setShowUploadModal(false); // Close file upload modal
+    const closeUploadModal = () => setShowUploadModal(false);
 
     return (
         <header className="bg-gray-800 text-white p-4 shadow-md">
@@ -70,7 +70,7 @@ const Header = () => {
             {showRegisterModal && <RegisterModal onClose={() => setShowRegisterModal(false)} />}
             {showLogoutModal && <LogoutModal onConfirm={() => { logout(); setShowLogoutModal(false); }} onCancel={() => setShowLogoutModal(false)} />}
             {showProfileModal && <ProfileModal user={user} onClose={closeProfileModal} />}
-            {showUploadModal && <FileUploadModal onClose={closeUploadModal} />} {/* File upload modal */}
+            {showUploadModal && <FileUploadModal onClose={closeUploadModal} />}
         </header>
     );
 };
