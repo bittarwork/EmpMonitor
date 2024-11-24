@@ -75,7 +75,6 @@ const calculateSalaries = async () => {
             // Update employee's status if needed
             employee.status = finalSalary > 0 ? 'active' : 'expired';
             await employee.save();
-
         }
 
     } catch (err) {
