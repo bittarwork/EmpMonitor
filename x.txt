@@ -1,0 +1,15 @@
+انا الان اقوم بتطوير الصفحة الاتية : 
+import React from 'react'
+
+const SalariesPage = () => {
+    return (
+        <div>SalariesPage</div>
+    )
+}
+
+export default SalariesPage
+والتي سوف تقوم ب
+باحضار المعلومات من ال api الاتي : 
+http://localhost:5000/api/salary/salaries
+حيث : REACT_APP_API_URL=http://localhost:5000/api 
+المعلومات الواردة من ال api هي : 
