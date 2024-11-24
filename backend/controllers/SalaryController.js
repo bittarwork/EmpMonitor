@@ -81,7 +81,50 @@ const updateSalary = async (req, res) => {
     }
 };
 
+const paySalary = async (req, res) => {
+    try {
+        const { salaryId, paidAmount } = req.body;
+
+        // التحقق من وجود salaryId و paidAmount
+        if (!salaryId || !paidAmount || paidAmount <= 0) {
+            return res.status(400).json({ message: 'Invalid salaryId or paidAmount' });
+        }
+
+        // جلب الراتب من قاعدة البيانات
+        const salary = await Salary.findById(salaryId);
+
+        if (!salary) {
+            return res.status(404).json({ message: 'Salary not found' });
+        }
+
+        // تحديث الحقول المتعلقة بالدفع
+        salary.paidAmount += paidAmount; // إضافة المبلغ المدفوع
+        salary.remainingAmount -= paidAmount; // خصم المبلغ من المتبقي
+
+        // التحقق من اكتمال الدفع
+        if (salary.remainingAmount <= 0) {
+            salary.salarySettled = true;
+            salary.settledDate = new Date(); // تعيين تاريخ التسوية
+            salary.remainingAmount = 0; // التأكد من أن المتبقي صفر
+        }
+        // 6062450
+        // حفظ التحديثات
+        await salary.save();
+
+        // إرجاع الرد
+        return res.status(200).json({
+            message: 'Payment processed successfully',
+            updatedSalary: salary,
+        });
+    } catch (error) {
+        console.error('Error processing payment:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+
 module.exports = {
     getAllSalaries,
     updateSalary,
+    paySalary,
 };

@@ -13,7 +13,7 @@ const calculateWorkedHours = (attendances) => {
         const entry = attendances[i];
         const exit = attendances[i + 1];
         if (entry && exit) {
-            const workedTime = (new Date(exit.checkTime) - new Date(entry.checkTime)) / 3600000; // Time in hours
+            const workedTime = (new Date(exit.checkTime) - new Date(entry.checkTime)) / 3600000;
             totalWorkedHours += workedTime;
         }
     }
@@ -32,86 +32,82 @@ const calculateWithdrawals = async (employeeId) => {
     return { totalWithdrawals, withdrawals };
 };
 
-// Function to calculate and store salaries for all employees
 const calculateSalaries = async () => {
     try {
+        const today = new Date();
+
         // Fetch all employees
         const employees = await Employee.find().populate('mockAttendances');
 
         for (let employee of employees) {
+            const contractStartDate = new Date(employee.contractStartDate);
+            const contractEndDate = new Date(employee.contractEndDate);
+
+            // Skip employees with expired contracts
+            if (today > contractEndDate) {
+                continue;
+            }
+
             // Check if salary has already been calculated for this period
-            const existingSalary = await Salary.findOne({ employee: employee._id, salaryDate: { $gte: new Date().setDate(1) } }); // Check if salary already exists for this month
+            const existingSalary = await Salary.findOne({
+                employee: employee._id,
+                startDate: contractStartDate,
+                endDate: contractEndDate,
+            });
 
-            // If salary exists, update it, otherwise calculate and create a new one
+            const hourlyRate = employee.hourlyRate;
+            const attendances = await Attendance.find({ employee: employee._id }).sort({ checkTime: 1 });
+
+            // Calculate total worked hours
+            const workedHours = calculateWorkedHours(attendances);
+
+            // Calculate total withdrawals and get withdrawal details
+            const { totalWithdrawals, withdrawals } = await calculateWithdrawals(employee._id);
+
+            // Calculate the salary
+            const totalSalary = workedHours * hourlyRate;
+            const finalSalary = totalSalary - totalWithdrawals;
+
             if (existingSalary) {
-                console.log(`Salary for employee ${employee._id} already calculated. Updating salary...`);
+                // Update remaining amount if any payments have been made
+                const paidAmount = existingSalary.paidAmount || 0;
+                const remainingAmount = finalSalary - paidAmount;
 
-                // Get employee's hourly rate and worked attendances
-                const hourlyRate = employee.hourlyRate;
-                const attendances = await Attendance.find({ employee: employee._id }).sort({ checkTime: 1 });
-
-                // Calculate total worked hours
-                const workedHours = calculateWorkedHours(attendances);
-
-                // Calculate total withdrawals and get withdrawal details
-                const { totalWithdrawals, withdrawals } = await calculateWithdrawals(employee._id);
-
-                // Calculate the salary
-                const totalSalary = workedHours * hourlyRate;
-                const finalSalary = totalSalary - totalWithdrawals;
-
-                // Update the existing salary record with the new values
                 existingSalary.totalWorkedHours = workedHours;
                 existingSalary.totalSalary = totalSalary;
                 existingSalary.totalWithdrawals = totalWithdrawals;
                 existingSalary.finalSalary = finalSalary;
-                existingSalary.withdrawals = withdrawals.map((w) => w._id); // Link withdrawals
-                existingSalary.remainingAmount = finalSalary;
+                existingSalary.remainingAmount = Math.max(0, remainingAmount); // Ensure no negative amounts
+                existingSalary.withdrawals = withdrawals.map((w) => w._id);
 
-                // Save the updated salary record
                 await existingSalary.save();
-
-                // Update employee's status if needed
-                employee.status = finalSalary > 0 ? 'active' : 'expired';
-                await employee.save();
             } else {
-                console.log(`Salary for employee ${employee._id} not found. Creating new salary record...`);
-
-                // If no salary record exists, calculate the salary and create a new record
-                const hourlyRate = employee.hourlyRate;
-                const attendances = await Attendance.find({ employee: employee._id }).sort({ checkTime: 1 });
-
-                // Calculate total worked hours
-                const workedHours = calculateWorkedHours(attendances);
-
-                // Calculate total withdrawals and get withdrawal details
-                const { totalWithdrawals, withdrawals } = await calculateWithdrawals(employee._id);
-
-                // Calculate the salary
-                const totalSalary = workedHours * hourlyRate;
-                const finalSalary = totalSalary - totalWithdrawals;
-
                 // Create the salary record
                 const salary = new Salary({
                     employee: employee._id,
-                    startDate: employee.contractStartDate,
-                    endDate: employee.contractEndDate,
+                    startDate: contractStartDate,
+                    endDate: contractEndDate,
                     totalWorkedHours: workedHours,
                     hourlyRate: hourlyRate,
                     totalSalary: totalSalary,
                     totalWithdrawals: totalWithdrawals,
                     finalSalary: finalSalary,
-                    withdrawals: withdrawals.map((w) => w._id), // Link withdrawals
-                    salaryDate: new Date(),
+                    withdrawals: withdrawals.map((w) => w._id),
+                    salaryDate: today,
                     remainingAmount: finalSalary,
+                    paidAmount: 0, // Initialize as no payment made yet
                     salarySettled: false,
                 });
 
-                // Save the new salary to the database
                 await salary.save();
+            }
 
-                // Update employee's status if needed
-                employee.status = finalSalary > 0 ? 'active' : 'expired';
+            // Update employee's status if the contract is expired and salary is fully settled
+            if (today > contractEndDate && existingSalary && existingSalary.remainingAmount <= 0) {
+                employee.status = 'expired';
+                await employee.save();
+            } else {
+                employee.status = 'active';
                 await employee.save();
             }
         }
@@ -119,6 +115,7 @@ const calculateSalaries = async () => {
         console.error('Error calculating salaries:', err);
     }
 };
+
 
 // Schedule the cron job to run every 5 seconds, but with an additional condition to ensure it doesn't run multiple times in parallel
 let isProcessing = false; // Flag to prevent concurrency
