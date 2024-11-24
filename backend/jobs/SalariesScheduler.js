@@ -1,81 +1,90 @@
 const cron = require('node-cron');
-const mongoose = require('mongoose');
 const Employee = require('../models/Employee');
-const Salary = require('../models/Salary');
+const Attendance = require('../models/Attendance');
+const Material = require('../models/Material');
 const Withdrawal = require('../models/Withdrawal');
+const Salary = require('../models/Salary');
 
-// Cron Job that runs every day at midnight
-const calculateSalaries = () => {
-    cron.schedule('*/5 * * * * *', async () => {
-        try {
-            console.log('Cron job started at:', new Date());
+// Function to calculate worked hours from attendance records
+const calculateWorkedHours = (attendances) => {
+    let totalWorkedHours = 0;
 
-            // Fetch all employees and populate withdrawals
-            console.log('Fetching all employees from the database...');
-            const employees = await Employee.find().populate('withdrawals').exec();
-            console.log(`Found ${employees.length} employees.`);
-
-            // Process each employee
-            for (const employee of employees) {
-                console.log(`Processing salary for employee: ${employee.firstName} ${employee.lastName}`);
-                const { hourlyRate, contractStartDate, contractEndDate, withdrawals, mockAttendances } = employee;
-
-                // Calculate total worked hours
-                let totalWorkedHours = 0;
-                mockAttendances.forEach(attendance => {
-                    const checkTime = new Date(attendance.checkTime);
-                    if (isNaN(checkTime.getTime())) {
-                        console.warn(`Invalid checkTime for employee ${employee.firstName} ${employee.lastName}:`, attendance.checkTime);
-                    } else {
-                        // Assuming each checkTime is the "clock-in" time, we need a "clock-out" time (if available)
-                        const workedHours = checkTime.getHours() + checkTime.getMinutes() / 60;
-                        console.log(`Worked hours for ${employee.firstName} ${employee.lastName}: ${workedHours}`);
-                        totalWorkedHours += workedHours;
-                    }
-                });
-
-                console.log(`Total worked hours for ${employee.firstName} ${employee.lastName}: ${totalWorkedHours}`);
-
-                // Calculate total salary based on worked hours and hourly rate
-                const totalSalary = totalWorkedHours * hourlyRate;
-                console.log(`Total salary for ${employee.firstName} ${employee.lastName}: ${totalSalary}`);
-
-                // Calculate total withdrawals
-                let totalWithdrawals = 0;
-                withdrawals.forEach(withdrawal => {
-                    const materialPrice = withdrawal.material.price || 0;  // Get price from material reference
-                    totalWithdrawals += withdrawal.quantity * materialPrice;  // Multiply quantity by material price
-                });
-                console.log(`Total withdrawals for ${employee.firstName} ${employee.lastName}: ${totalWithdrawals}`);
-
-                // Final salary calculation
-                const finalSalary = totalSalary - totalWithdrawals;
-                console.log(`Final salary after withdrawals for ${employee.firstName} ${employee.lastName}: ${finalSalary}`);
-
-                // Create new salary entry
-                const newSalary = new Salary({
-                    employee: employee._id,
-                    startDate: contractStartDate,
-                    endDate: contractEndDate,
-                    totalWorkedHours: totalWorkedHours,
-                    hourlyRate: hourlyRate,
-                    totalSalary: totalSalary,
-                    totalWithdrawals: totalWithdrawals,
-                    finalSalary: finalSalary,
-                    withdrawals: withdrawals.map(w => w._id),
-                    salaryDate: new Date(),
-                    salarySettled: false,
-                });
-
-                // Save the new salary document
-                await newSalary.save();
-                console.log(`Salary calculated and saved for employee: ${employee.firstName} ${employee.lastName}`);
-            }
-        } catch (error) {
-            console.error('Error during salary calculation:', error);
+    for (let i = 0; i < attendances.length; i += 2) {
+        const entry = attendances[i];
+        const exit = attendances[i + 1];
+        if (entry && exit) {
+            const workedTime = (new Date(exit.checkTime) - new Date(entry.checkTime)) / 3600000; // Time in hours
+            totalWorkedHours += workedTime;
         }
-    });
+    }
+    return totalWorkedHours;
 };
+
+// Function to calculate total withdrawals for an employee
+const calculateWithdrawals = async (employeeId) => {
+    const withdrawals = await Withdrawal.find({ employee: employeeId }).populate('material');
+    let totalWithdrawals = 0;
+
+    withdrawals.forEach((withdrawal) => {
+        const withdrawalCost = withdrawal.quantity * withdrawal.material.price;
+        totalWithdrawals += withdrawalCost;
+    });
+    return { totalWithdrawals, withdrawals };
+};
+
+// Function to calculate and store salaries for all employees
+const calculateSalaries = async () => {
+    try {
+        // Fetch all employees
+        const employees = await Employee.find().populate('mockAttendances');
+
+        for (let employee of employees) {
+
+            // Get employee's hourly rate and worked attendances
+            const hourlyRate = employee.hourlyRate;
+            const attendances = await Attendance.find({ employee: employee._id }).sort({ checkTime: 1 });
+
+            // Calculate total worked hours
+            const workedHours = calculateWorkedHours(attendances);
+
+            // Calculate total withdrawals and get withdrawal details
+            const { totalWithdrawals, withdrawals } = await calculateWithdrawals(employee._id);
+
+            // Calculate the salary
+            const totalSalary = workedHours * hourlyRate;
+            const finalSalary = totalSalary - totalWithdrawals;
+
+            // Create the salary record
+            const salary = new Salary({
+                employee: employee._id,
+                startDate: employee.contractStartDate,
+                endDate: employee.contractEndDate,
+                totalWorkedHours: workedHours,
+                hourlyRate: hourlyRate,
+                totalSalary: totalSalary,
+                totalWithdrawals: totalWithdrawals,
+                finalSalary: finalSalary,
+                withdrawals: withdrawals.map((w) => w._id), // Link withdrawals
+                salaryDate: new Date(),
+                remainingAmount: finalSalary,
+                salarySettled: false,
+            });
+            // Save the salary to the database
+            await salary.save();
+
+            // Update employee's status if needed
+            employee.status = finalSalary > 0 ? 'active' : 'expired';
+            await employee.save();
+
+        }
+
+    } catch (err) {
+        console.error('Error calculating salaries:', err);
+    }
+};
+
+// Schedule the cron job to run every 5 seconds
+cron.schedule('*/5 * * * * *', calculateSalaries);
 
 // Export the function
 module.exports = { calculateSalaries };
