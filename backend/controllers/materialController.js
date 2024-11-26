@@ -72,10 +72,31 @@ exports.getMaterialById = async (req, res) => {
 };
 
 // دالة لحذف مادة
+
 exports.deleteMaterial = async (req, res) => {
     try {
-        const material = await Material.findByIdAndDelete(req.params.id);
-        if (!material) return res.status(404).json({ message: 'Material not found' });
+        const { materialId } = req.params;
+
+        // تحقق من أن معرف المادة صالح
+        if (!mongoose.Types.ObjectId.isValid(materialId)) {
+            return res.status(400).json({ message: 'Invalid material ID' });
+        }
+
+        // التحقق مما إذا كان هناك سحب مرتبط بهذه المادة
+        const relatedWithdrawals = await Withdrawal.find({ material: materialId });
+        if (relatedWithdrawals.length > 0) {
+            return res.status(400).json({
+                message: 'Cannot delete material. There are withdrawals associated with this material.',
+                relatedWithdrawalsCount: relatedWithdrawals.length,
+            });
+        }
+
+        // حذف المادة
+        const material = await Material.findByIdAndDelete(materialId);
+        if (!material) {
+            return res.status(404).json({ message: 'Material not found' });
+        }
+
         res.status(200).json({ message: 'Material deleted successfully' });
     } catch (error) {
         console.error('Error deleting material:', error);

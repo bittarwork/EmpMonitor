@@ -1,6 +1,8 @@
 const Employee = require('../models/Employee');
 const MockAttendance = require('../models/MockAttendance');
 const Withdrawal = require('../models/Withdrawal');
+const Salary = require('../models/Salary');
+
 const multer = require('multer');
 
 // إعداد Multer لتخزين الملفات المرفوعة
@@ -196,15 +198,39 @@ exports.getEmployeeById = async (req, res) => {
 // دالة لحذف موظف
 exports.deleteEmployee = async (req, res) => {
     try {
-        const employee = await Employee.findByIdAndDelete(req.params.id);
-        if (!employee) return res.status(404).json({ message: 'Employee not found' });
+        const employeeId = req.params.id;
+
+        // تحقق من وجود الموظف
+        const employee = await Employee.findById(employeeId);
+        if (!employee) {
+            return res.status(404).json({ message: 'Employee not found' });
+        }
+
+        // تحقق من الرواتب المرتبطة
+        const hasSalaries = await Salary.exists({ employee: employeeId });
+        if (hasSalaries) {
+            return res.status(400).json({
+                message: 'Cannot delete employee. Salaries are associated with this employee.'
+            });
+        }
+
+        // تحقق من السحوبات المرتبطة
+        const hasWithdrawals = await Withdrawal.exists({ employee: employeeId });
+        if (hasWithdrawals) {
+            return res.status(400).json({
+                message: 'Cannot delete employee. Withdrawals are associated with this employee.'
+            });
+        }
+
+        // إذا لم يكن هناك ارتباطات، قم بحذف الموظف
+        await Employee.findByIdAndDelete(employeeId);
+
         res.status(200).json({ message: 'Employee deleted successfully' });
     } catch (error) {
         console.error('Error deleting employee:', error);
         res.status(500).json({ message: 'Error deleting employee', error });
     }
 };
-
 // دالة لإعادة الموظفين الذين تم تعيينهم في فترة معينة
 exports.getEmployeesByHirePeriod = async (req, res) => {
     try {
