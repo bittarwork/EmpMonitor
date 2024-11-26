@@ -141,7 +141,7 @@ const EmployeePage = () => {
 
             <EmployeeModal
                 isOpen={isModalOpen}
-                closeModal={closeModal}
+                onRequestClose={closeModal}
                 employee={selectedEmployee}
             />
         </div>

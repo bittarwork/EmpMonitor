@@ -14,14 +14,11 @@ const Layout = ({ children }) => {
             <Header />
 
             <div className="flex flex-grow">
-                {/* Sidebar */}
+                {/* Conditionally render Sidebar */}
                 {user ? (
+                    // If user exists, show Sidebar
                     <Sidebar />
-                ) : (
-                    <div className="w-64 p-4 bg-gray-800 flex items-center justify-center">
-                        <img src={logo} alt="Logo" className="h-48" /> {/* عرض اللوغو */}
-                    </div>
-                )}
+                ) : ""}
 
                 {/* Main Content */}
                 <main className="p-6 flex-grow">

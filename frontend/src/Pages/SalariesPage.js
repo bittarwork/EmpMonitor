@@ -94,14 +94,17 @@ const SalariesPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-2">
                 {filteredData.map((salary) => (
-                    <SalaryCard
-                        key={salary._id}
-                        salary={salary}
-                        onAddPayment={(salaryId) => {
-                            setSelectedSalaryId(salaryId);
-                            setIsModalOpen(true);
-                        }}
-                    />
+                    salary.employee && (
+                        <SalaryCard
+                            key={salary._id}
+                            salary={salary}
+                            onAddPayment={(salaryId) => {
+                                setSelectedSalaryId(salaryId);
+                                setIsModalOpen(true);
+                            }}
+                        />
+                    )
+
                 ))}
             </div>
             <PaymentModal
