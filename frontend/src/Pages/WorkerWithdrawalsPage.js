@@ -200,17 +200,24 @@ const WorkerWithdrawalsPage = () => {
                 materials={materials}
             />
             {filteredWithdrawals.length === 0 ? (
-                <p className="text-center">لا توجد سحوبات لهذا الموظف.</p>
+                <p className="text-center text-gray-500 text-lg font-medium">لا توجد سحوبات لهذا الموظف.</p>
             ) : (
                 filteredWithdrawals.map((employeeWithdrawals) => (
-                    <div key={employeeWithdrawals.employeeId} className="border p-4 mb-4 rounded-lg shadow-md bg-white">
-                        <h2 className="text-xl font-semibold mb-2">الموظف: {getEmployeeName(employeeWithdrawals.employeeId)}</h2>
-                        <button
-                            onClick={() => handleDeleteAllWithdrawals(employeeWithdrawals.employeeId)}
-                            className="bg-red-500 hover:bg-red-600 text-white rounded-lg py-1 px-3 mb-3"
-                        >
-                            حذف جميع السحوبات لهذا الموظف
-                        </button>
+                    <div
+                        key={employeeWithdrawals.employeeId}
+                        className="border p-6 mb-6 rounded-lg shadow-md bg-gray-50 hover:shadow-lg transition-shadow duration-300"
+                    >
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-2xl font-bold text-gray-800">
+                                الموظف: {getEmployeeName(employeeWithdrawals.employeeId)}
+                            </h2>
+                            <button
+                                onClick={() => handleDeleteAllWithdrawals(employeeWithdrawals.employeeId)}
+                                className="bg-red-500 hover:bg-red-600 text-white rounded-lg py-2 px-4 transition duration-200"
+                            >
+                                حذف جميع السحوبات لهذا الموظف
+                            </button>
+                        </div>
                         <WithdrawalList
                             withdrawals={employeeWithdrawals.withdrawals}
                             onEdit={handleEdit}
@@ -219,6 +226,7 @@ const WorkerWithdrawalsPage = () => {
                     </div>
                 ))
             )}
+
         </div>
     );
 };

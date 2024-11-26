@@ -88,13 +88,13 @@ const WithdrawalFormPopup = ({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-5 py-2 rounded-lg shadow-md"
+                            className="bg-gray-300 mx-2 hover:bg-gray-400 text-gray-800 font-semibold px-5 py-2 rounded-lg shadow-md"
                         >
                             إلغاء
                         </button>
                         <button
                             type="submit"
-                            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg shadow-md"
+                            className="bg-blue-500  hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg shadow-md"
                         >
                             {newWithdrawal.employee ? 'تحديث المسحوبات' : 'إضافة المسحوبات'}
                         </button>
