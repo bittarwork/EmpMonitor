@@ -3,7 +3,6 @@ import { UserContext } from '../Context/UserContext';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import Footer from './Footer';
-import logo from '../assets/images/logo.png'; // استيراد الصورة من المسار المحدد
 
 const Layout = ({ children }) => {
     const { user } = useContext(UserContext);

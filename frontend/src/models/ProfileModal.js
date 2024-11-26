@@ -17,7 +17,7 @@ const ProfileModal = ({ user, onClose }) => {
                 <div className="flex justify-center mb-4">
                     {(
                         <img
-                            src={`http://localhost:5000/${user.profileImage}`} // تأكد من استخدام المسار الصحيح للصورة
+                            src={`${user.image}`} // تأكد من استخدام المسار الصحيح للصورة
                             alt="Profile"
                             className="w-24 h-24 rounded-full border-2 border-gray-300 shadow-md"
                         />

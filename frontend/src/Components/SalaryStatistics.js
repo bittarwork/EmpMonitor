@@ -13,8 +13,8 @@ const SalaryStatistics = () => {
             .then((response) => response.json())
             .then((data) => {
                 console.log("Fetched data: ", data);
-                setSalaries(data);
-            })
+                setSalaries(data.salaries || []); // Ensure fallback to an empty array
+            })            
             .catch((err) => {
                 console.error("Error fetching data: ", err);
                 setError(err.message);

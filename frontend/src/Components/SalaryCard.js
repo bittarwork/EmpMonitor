@@ -42,22 +42,28 @@ const SalaryCard = ({ salary, onAddPayment }) => {
             {/* Salary Details */}
             <div className="bg-gray-50 rounded-lg p-4 shadow-inner space-y-2">
                 <h3 className="text-md font-semibold text-gray-700 mb-2">تفاصيل الراتب:</h3>
+
                 <div className="flex justify-between py-2 border-b">
-                    <span className="font-semibold text-gray-700">إجمالي الراتب:</span>
-                    <span className="font-semibold text-gray-900">{Math.floor(salary.totalSalary)} ل.س</span>
+                    <span className="font-semibold text-gray-700">الراتب بالساعة:</span>
+                    <span className="font-semibold text-gray-900">{Math.floor(salary.employee.hourlyRate)} ل.س</span>
                 </div>
                 <div className="flex justify-between py-2 border-b">
                     <span className="font-semibold text-gray-700">إجمالي ساعات العمل:</span>
                     <span className="font-semibold text-gray-900">{salary.totalWorkedHours.toFixed(2)} ساعة</span>
                 </div>
                 <div className="flex justify-between py-2 border-b">
-                    <span className="font-semibold text-gray-700">المتبقي:</span>
-                    <span className="font-semibold text-gray-900">{Math.floor(salary.remainingAmount)} ل.س</span>
+                    <span className="font-semibold text-gray-700">إجمالي الراتب:</span>
+                    <span className="font-semibold text-gray-900">{Math.floor(salary.totalSalary)} ل.س</span>
                 </div>
                 <div className="flex justify-between py-2">
                     <span className="font-semibold text-gray-700">المدفوع:</span>
                     <span className="font-semibold text-gray-900">{Math.floor(salary.paidAmount)} ل.س</span>
                 </div>
+                <div className="flex justify-between py-2 border-b">
+                    <span className="font-semibold text-gray-700">المتبقي:</span>
+                    <span className="font-semibold text-gray-900">{Math.floor(salary.remainingAmount)} ل.س</span>
+                </div>
+
             </div>
 
             {/* Withdrawals Section */}

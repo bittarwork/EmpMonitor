@@ -9,16 +9,26 @@ const SalariesPage = () => {
     const [selectedSalaryId, setSelectedSalaryId] = useState(null);
     const [searchQuery, setSearchQuery] = useState(""); // State for the search query
 
-    // Function to fetch salary data from the server
     const fetchSalaryData = () => {
         fetch(`${process.env.REACT_APP_API_URL}/salary/salaries`)
             .then((response) => response.json())
             .then((data) => {
-                setSalaryData(data);
-                setFilteredData(data); // Initially set filtered data to all salary data
+                if (Array.isArray(data)) {
+                    setSalaryData(data);
+                    setFilteredData(data);
+                } else {
+                    console.error("Expected an array but received:", data);
+                    setSalaryData([]);
+                    setFilteredData([]);
+                }
             })
-            .catch((error) => console.error("خطأ في جلب بيانات الراتب:", error));
+            .catch((error) => {
+                console.error("Error fetching salary data:", error);
+                setSalaryData([]);
+                setFilteredData([]);
+            });
     };
+    
 
     // Fetch salary data on component mount
     useEffect(() => {
