@@ -206,14 +206,6 @@ exports.deleteEmployee = async (req, res) => {
             return res.status(404).json({ message: 'Employee not found' });
         }
 
-        // تحقق من الرواتب المرتبطة
-        const hasSalaries = await Salary.exists({ employee: employeeId });
-        if (hasSalaries) {
-            return res.status(400).json({
-                message: 'Cannot delete employee. Salaries are associated with this employee.'
-            });
-        }
-
         // تحقق من السحوبات المرتبطة
         const hasWithdrawals = await Withdrawal.exists({ employee: employeeId });
         if (hasWithdrawals) {

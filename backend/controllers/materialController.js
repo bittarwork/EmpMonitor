@@ -1,5 +1,5 @@
 const Material = require('../models/Material');
-
+const Withdrawal = require('../models/Withdrawal');
 // دالة لإنشاء مادة جديدة
 exports.createMaterial = async (req, res) => {
     try {
@@ -72,27 +72,19 @@ exports.getMaterialById = async (req, res) => {
 };
 
 // دالة لحذف مادة
-
 exports.deleteMaterial = async (req, res) => {
     try {
-        const { materialId } = req.params;
+        // البحث عن عمليات السحب المرتبطة بالمادة
+        const existingWithdrawals = await Withdrawal.find({ material: req.params.id });
 
-        // تحقق من أن معرف المادة صالح
-        if (!mongoose.Types.ObjectId.isValid(materialId)) {
-            return res.status(400).json({ message: 'Invalid material ID' });
-        }
-
-        // التحقق مما إذا كان هناك سحب مرتبط بهذه المادة
-        const relatedWithdrawals = await Withdrawal.find({ material: materialId });
-        if (relatedWithdrawals.length > 0) {
+        if (existingWithdrawals.length > 0) {
             return res.status(400).json({
-                message: 'Cannot delete material. There are withdrawals associated with this material.',
-                relatedWithdrawalsCount: relatedWithdrawals.length,
+                message: 'Cannot delete material. It is associated with existing withdrawals.'
             });
         }
 
-        // حذف المادة
-        const material = await Material.findByIdAndDelete(materialId);
+        // حذف المادة إذا لم تكن مرتبطة بأي عمليات سحب
+        const material = await Material.findByIdAndDelete(req.params.id);
         if (!material) {
             return res.status(404).json({ message: 'Material not found' });
         }
@@ -103,6 +95,5 @@ exports.deleteMaterial = async (req, res) => {
         res.status(500).json({ message: 'Error deleting material', error });
     }
 };
-
 
 
